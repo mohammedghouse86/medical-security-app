@@ -13,7 +13,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'MedSecure API' });
 });
 
-const cors = require('cors'); app.use(cors({  origin: [    'http://localhost:5173',    'https://mohammedghouse86.github.io'  ] }));
+app.use(cors({  origin: [    'http://localhost:5173',    'https://mohammedghouse86.github.io'  ] }));
 
 const DATA = path.join(__dirname, 'data.json');
 const read = () => JSON.parse(fs.readFileSync(DATA, 'utf8'));

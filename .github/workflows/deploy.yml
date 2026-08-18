@@ -35,12 +35,16 @@ jobs:
           cache-dependency-path: frontend/package.json
 
       - name: Install dependencies
-        working-directory: frontend
         run: npm install
-
-      - name: Build frontend
         working-directory: frontend
+
+      - name: Fix Vite permissions
+        run: chmod +x node_modules/.bin/vite
+        working-directory: frontend
+
+      - name: Build
         run: npm run build
+        working-directory: frontend
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
 

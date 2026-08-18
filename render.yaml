@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: medical-security-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: FRONTEND_ORIGIN
+        sync: false

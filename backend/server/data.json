@@ -1,0 +1,264 @@
+{
+  "users": [
+    {
+      "id": "u-ap-admin",
+      "username": "apollo.admin",
+      "password": "Admin@12345",
+      "role": "admin",
+      "tenantId": "hospital-apollo",
+      "name": "Dr. Amelia Carter",
+      "email": "admin@apollocare.test"
+    },
+    {
+      "id": "u-ap-doc",
+      "username": "apollo.doctor",
+      "password": "Doctor@12345",
+      "role": "doctor",
+      "tenantId": "hospital-apollo",
+      "name": "Dr. Arjun Rao",
+      "email": "arjun@apollocare.test"
+    },
+    {
+      "id": "u-ap-pat",
+      "username": "apollo.patient",
+      "password": "Patient@12345",
+      "role": "patient",
+      "tenantId": "hospital-apollo",
+      "name": "Maya Singh",
+      "email": "maya@apollocare.test"
+    },
+    {
+      "id": "u-ap-pat2",
+      "username": "apollo.patient2",
+      "password": "Patient@12345",
+      "role": "patient",
+      "tenantId": "hospital-apollo",
+      "name": "Daniel Thomas",
+      "email": "daniel@apollocare.test"
+    },
+    {
+      "id": "u-sun-admin",
+      "username": "sunrise.admin",
+      "password": "Admin@12345",
+      "role": "admin",
+      "tenantId": "hospital-sunrise",
+      "name": "Dr. Sarah Wilson",
+      "email": "admin@sunrise.test"
+    },
+    {
+      "id": "u-sun-doc",
+      "username": "sunrise.doctor",
+      "password": "Doctor@12345",
+      "role": "doctor",
+      "tenantId": "hospital-sunrise",
+      "name": "Dr. Neha Kapoor",
+      "email": "neha@sunrise.test"
+    },
+    {
+      "id": "u-sun-pat",
+      "username": "sunrise.patient",
+      "password": "Patient@12345",
+      "role": "patient",
+      "tenantId": "hospital-sunrise",
+      "name": "Owen Miller",
+      "email": "owen@sunrise.test"
+    },
+    {
+      "id": "u-sun-pat2",
+      "username": "sunrise.patient2",
+      "password": "Patient@12345",
+      "role": "patient",
+      "tenantId": "hospital-sunrise",
+      "name": "Priya Shah",
+      "email": "priya@sunrise.test"
+    }
+  ],
+  "hospitals": [
+    {
+      "id": "hospital-apollo",
+      "name": "Apollo Care Hospital",
+      "city": "Hyderabad",
+      "specialties": [
+        "Cardiology",
+        "General Medicine",
+        "Dermatology"
+      ]
+    },
+    {
+      "id": "hospital-sunrise",
+      "name": "Sunrise Medical Center",
+      "city": "Bengaluru",
+      "specialties": [
+        "Neurology",
+        "Pediatrics",
+        "General Medicine"
+      ]
+    }
+  ],
+  "patients": [
+    {
+      "id": "p-ap-1",
+      "userId": "u-ap-pat",
+      "tenantId": "hospital-apollo",
+      "name": "Maya Singh",
+      "dob": "1993-04-12",
+      "bloodGroup": "O+",
+      "phone": "+91 90000 10001",
+      "conditions": [
+        "Hypertension"
+      ],
+      "doctorId": "u-ap-doc"
+    },
+    {
+      "id": "p-ap-2",
+      "userId": "u-ap-pat2",
+      "tenantId": "hospital-apollo",
+      "name": "Daniel Thomas",
+      "dob": "1987-11-03",
+      "bloodGroup": "B+",
+      "phone": "+91 90000 10002",
+      "conditions": [
+        "Asthma"
+      ],
+      "doctorId": "u-ap-doc"
+    },
+    {
+      "id": "p-su-1",
+      "userId": "u-sun-pat",
+      "tenantId": "hospital-sunrise",
+      "name": "Owen Miller",
+      "dob": "1990-08-20",
+      "bloodGroup": "A+",
+      "phone": "+91 90000 20001",
+      "conditions": [
+        "Migraine"
+      ],
+      "doctorId": "u-sun-doc"
+    },
+    {
+      "id": "p-su-2",
+      "userId": "u-sun-pat2",
+      "tenantId": "hospital-sunrise",
+      "name": "Priya Shah",
+      "dob": "1995-02-16",
+      "bloodGroup": "AB+",
+      "phone": "+91 90000 20002",
+      "conditions": [
+        "Diabetes"
+      ],
+      "doctorId": "u-sun-doc"
+    }
+  ],
+  "doctors": [
+    {
+      "id": "d-ap-1",
+      "userId": "u-ap-doc",
+      "tenantId": "hospital-apollo",
+      "name": "Dr. Arjun Rao",
+      "specialty": "Cardiology",
+      "license": "MED-AP-1001"
+    },
+    {
+      "id": "d-su-1",
+      "userId": "u-sun-doc",
+      "tenantId": "hospital-sunrise",
+      "name": "Dr. Neha Kapoor",
+      "specialty": "Neurology",
+      "license": "MED-SU-2001"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "a-ap-1",
+      "tenantId": "hospital-apollo",
+      "patientId": "p-ap-1",
+      "doctorId": "u-ap-doc",
+      "date": "2026-08-18",
+      "time": "10:30",
+      "status": "Confirmed",
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": "a-ap-2",
+      "tenantId": "hospital-apollo",
+      "patientId": "p-ap-2",
+      "doctorId": "u-ap-doc",
+      "date": "2026-08-19",
+      "time": "14:00",
+      "status": "Requested",
+      "reason": "Asthma follow-up"
+    },
+    {
+      "id": "a-su-1",
+      "tenantId": "hospital-sunrise",
+      "patientId": "p-su-1",
+      "doctorId": "u-sun-doc",
+      "date": "2026-08-18",
+      "time": "09:00",
+      "status": "Confirmed",
+      "reason": "Migraine consultation"
+    }
+  ],
+  "reports": [
+    {
+      "id": "r-ap-1",
+      "tenantId": "hospital-apollo",
+      "patientId": "p-ap-1",
+      "type": "Blood Test",
+      "title": "Annual Blood Panel",
+      "summary": "CBC and metabolic panel within expected ranges.",
+      "uploadedAt": "2026-08-10"
+    },
+    {
+      "id": "r-su-1",
+      "tenantId": "hospital-sunrise",
+      "patientId": "p-su-1",
+      "type": "MRI",
+      "title": "Head MRI",
+      "summary": "No acute abnormality noted.",
+      "uploadedAt": "2026-08-11"
+    }
+  ],
+  "prescriptions": [
+    {
+      "id": "rx-ap-1",
+      "tenantId": "hospital-apollo",
+      "patientId": "p-ap-1",
+      "doctorId": "u-ap-doc",
+      "medicine": "Amlodipine",
+      "dosage": "5 mg",
+      "frequency": "Once daily",
+      "instructions": "Take after breakfast.",
+      "status": "Active"
+    },
+    {
+      "id": "rx-su-1",
+      "tenantId": "hospital-sunrise",
+      "patientId": "p-su-1",
+      "doctorId": "u-sun-doc",
+      "medicine": "Sumatriptan",
+      "dosage": "50 mg",
+      "frequency": "As needed",
+      "instructions": "Use at onset of migraine.",
+      "status": "Active"
+    }
+  ],
+  "advice": [
+    {
+      "id": "adv-ap-1",
+      "tenantId": "hospital-apollo",
+      "patientId": "p-ap-1",
+      "doctorId": "u-ap-doc",
+      "text": "Monitor blood pressure twice daily and maintain a low-sodium diet.",
+      "createdAt": "2026-08-12"
+    },
+    {
+      "id": "adv-su-1",
+      "tenantId": "hospital-sunrise",
+      "patientId": "p-su-1",
+      "doctorId": "u-sun-doc",
+      "text": "Maintain a regular sleep schedule and hydration.",
+      "createdAt": "2026-08-12"
+    }
+  ]
+}

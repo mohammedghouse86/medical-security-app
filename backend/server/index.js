@@ -2,6 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+
+// Secret used to sign tokens. Set JWT_SECRET in the environment for production;
+// the fallback only keeps local dev working.
+const JWT_SECRET = process.env.JWT_SECRET || 'medsecure-dev-secret';
 
 const app = express();
 app.use(cors({
@@ -20,20 +25,24 @@ const read = () => JSON.parse(fs.readFileSync(DATA, 'utf8'));
 const write = d => fs.writeFileSync(DATA, JSON.stringify(d, null, 2));
 
 const b64 = obj => Buffer.from(JSON.stringify(obj)).toString('base64url');
+const sign = (data) => crypto.createHmac('sha256', JWT_SECRET).update(data).digest('base64url');
 function makeToken(user) {
-  const header = b64({ alg: 'none', typ: 'JWT' });
+  const header = b64({ alg: 'HS256', typ: 'JWT' });
   const now = Math.floor(Date.now()/1000);
   const payload = b64({ userId:user.id, username:user.username, role:user.role, tenantId:user.tenantId, iat:now, exp:now+86400 });
-  return `${header}.${payload}.`;
+  return `${header}.${payload}.${sign(`${header}.${payload}`)}`;
 }
 
-// INTENTIONAL: payload is decoded and expiration is checked, but no signature is verified.
 function auth(req,res,next) {
   const raw=(req.headers.authorization||'').replace(/^Bearer\s+/,'');
   if(!raw) return res.status(401).json({error:'Authentication required'});
   try {
     const parts=raw.split('.');
-    if(parts.length<2) throw new Error('bad token');
+    if(parts.length!==3) throw new Error('bad token');
+    // Verify the HMAC signature before trusting anything in the payload.
+    const expected=sign(`${parts[0]}.${parts[1]}`);
+    const got=parts[2];
+    if(got.length!==expected.length || !crypto.timingSafeEqual(Buffer.from(got),Buffer.from(expected))) throw new Error('bad signature');
     const p=JSON.parse(Buffer.from(parts[1], 'base64url').toString());
     if(!p.exp || p.exp < Math.floor(Date.now()/1000)) return res.status(401).json({error:'Token expired'});
     req.user=p;

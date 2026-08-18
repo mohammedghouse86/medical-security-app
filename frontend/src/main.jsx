@@ -5,7 +5,7 @@ import './style.css';
 // const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\\/$/, '');
 // const BASE_PATH = import.meta.env.BASE_URL.replace(/\\/$/, '');
 
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/$/, '');
+const API_URL = (import.meta.env.VITE_API_URL || 'https://my-medical-security-app-backend.onrender.com').replace(/\/$/, '');
 const BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const getAppPath = () => {

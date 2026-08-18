@@ -2,8 +2,11 @@ import React,{useEffect,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import './style.css';
 
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\\/$/, '');
-const BASE_PATH = import.meta.env.BASE_URL.replace(/\\/$/, '');
+// const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\\/$/, '');
+// const BASE_PATH = import.meta.env.BASE_URL.replace(/\\/$/, '');
+
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/$/, '');
+const BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const getAppPath = () => {
   if (location.hash.startsWith('#/')) return location.hash.slice(1) || '/dashboard';

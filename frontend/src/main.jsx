@@ -58,6 +58,9 @@ function Unauthorized({goDashboard}) {
 function App(){
  const [user,setUser]=useState(()=>JSON.parse(localStorage.getItem('user')||'null'));
  const [path,setPath]=useState(getAppPath());
+ // Payloads carry the path they were fetched for. A render happens between
+ // navigate() and load() finishing, and a slow request can land after another
+ // nav, so Content must never be handed a different section's data.
  const [data,setData]=useState(null),[detail,setDetail]=useState(null),[err,setErr]=useState('');
 
  useEffect(()=>{
@@ -79,27 +82,29 @@ function App(){
 
  async function load(p){
    try{
-     setErr(''); setDetail(null);
+     setErr(''); setDetail(null); setData(null);
      const dm=detailMatch(p);
      if(dm){
        const item=await api(`/${dm.resource}/${encodeURIComponent(dm.id)}`);
-       setDetail(item);
+       setDetail({p,v:item});
        return;
      }
      if(p==='/dashboard'){
        const [h,pa,a,r,rx]=await Promise.all([api('/hospitals'),api('/patients'),api('/appointments'),api('/reports'),api('/prescriptions')]);
-       setData({h,pa,a,r,rx}); return;
+       setData({p,v:{h,pa,a,r,rx}}); return;
      }
      const endpoint={
        '/patients':'/patients','/doctors':'/doctors','/appointments':'/appointments',
        '/reports':'/reports','/prescriptions':'/prescriptions','/advice':'/advice',
        '/users':'/users','/hospital-settings':'/hospitals'
      }[p];
-     setData(endpoint?await api(endpoint):null);
+     setData(endpoint?{p,v:await api(endpoint)}:null);
    }catch(e){setErr(e.message)}
  }
 
- if(!user)return <Login onLogin={setUser}/>;
+ // Login rewrites the URL to /dashboard, so path has to follow it: the load
+ // effect skips '/', which would leave the shell rendered with no content.
+ if(!user)return <Login onLogin={u=>{setUser(u);setPath('/dashboard')}}/>;
  const logout=()=>{localStorage.clear();setUser(null);history.replaceState({},'',appUrl('/'));setPath('/')};
  if(path==='/unauthorized')return <Unauthorized goDashboard={()=>navigate('/dashboard')}/>;
 
@@ -121,7 +126,7 @@ function App(){
        <div className="profile"><div className="avatar">{user.name[0]}</div><div><b>{user.name}</b><span>{user.role} · {user.tenantId.replace('hospital-','')}</span></div></div>
      </header>
      {err&&<div className="error">{err}</div>}
-     {dm&&detail?<Detail resource={dm.resource} item={detail} back={()=>navigate(listPathForResource(dm.resource))}/>:data&&<Content path={path} data={data} user={user} navigate={navigate}/>}
+     {dm&&detail?.p===path?<Detail resource={dm.resource} item={detail.v} back={()=>navigate(listPathForResource(dm.resource))}/>:data?.p===path&&<Content path={path} data={data.v} user={user} navigate={navigate}/>}
    </main>
  </div>
 }

@@ -18,6 +18,30 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'MedSecure API' });
 });
 
+// --- API documentation (public) ---
+const OPENAPI_FILE = path.join(__dirname, '..', 'openapi.yaml');
+app.get('/api/openapi.yaml', (req, res) => {
+  res.type('text/yaml').sendFile(OPENAPI_FILE, err => { if (err) res.status(404).json({ error: 'Spec not found' }); });
+});
+app.get('/api/docs', (req, res) => {
+  res.type('html').send(`<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MedSecure API — Swagger</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css"/>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    window.ui = SwaggerUIBundle({ url: '/api/openapi.yaml', dom_id: '#swagger-ui', deepLinking: true });
+  </script>
+</body>
+</html>`);
+});
+
 app.use(cors({  origin: [    'http://localhost:5173',    'https://mohammedghouse86.github.io'  ] }));
 
 const DATA = path.join(__dirname, 'data.json');

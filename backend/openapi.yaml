@@ -1,0 +1,647 @@
+openapi: 3.0.3
+info:
+  title: MedSecure API
+  version: 1.0.0
+  description: >
+    Multi-tenant clinical records API for the MedSecure training app.
+
+
+    SECURITY NOTE — this application deliberately contains vulnerabilities for
+    security testing. Operations whose access control is intentionally broken
+    are flagged in their description with **[RBAC ISSUE]** and carry an
+    `x-rbac-issue` extension. "Intended access" is what the role model *should*
+    enforce; "actual access" is what the server currently allows. See
+    `RBAC.md` for the consolidated matrix.
+
+servers:
+  - url: https://my-medical-security-app-backend.onrender.com
+    description: Production (Render)
+  - url: http://localhost:4000
+    description: Local
+
+tags:
+  - name: Auth
+  - name: Hospitals
+  - name: Hospital Settings
+  - name: Users
+  - name: Patients
+  - name: Doctors
+  - name: Appointments
+  - name: Reports
+  - name: Prescriptions
+  - name: Advice
+  - name: System
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/health:
+    get:
+      tags: [System]
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: Service status
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in and receive a JWT
+      security: []
+      description: >
+        Returns an HS256-signed JWT. **[RBAC ISSUE — auth]** The signature is
+        NOT verified on subsequent requests (see `auth()` middleware), so a
+        client can forge or tamper the payload (e.g. change `role` to `admin`
+        or `tenantId` to another hospital) and it will be accepted. This is the
+        root privilege-escalation / cross-tenant flaw.
+      x-rbac-issue:
+        id: VULN-AUTH
+        type: Broken authentication / token forgery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Current user profile
+      responses:
+        '200':
+          description: The authenticated user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/UserPublic' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/hospitals:
+    get:
+      tags: [Hospitals]
+      summary: List hospitals (basic)
+      description: Admin sees all tenants; other roles see only their own tenant.
+      responses:
+        '200':
+          description: Hospitals
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Hospital' } }
+
+  /api/hospitals/{hospitalId}:
+    parameters:
+      - $ref: '#/components/parameters/hospitalId'
+    get:
+      tags: [Hospitals]
+      summary: Get one hospital (basic)
+      description: >
+        **[RBAC ISSUE]** No tenant check — any authenticated user can read any
+        hospital by id.
+      x-rbac-issue: { id: RBAC-HOS, type: IDOR (cross-tenant read) }
+      responses:
+        '200':
+          description: Hospital
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Hospital' }
+    put:
+      tags: [Hospitals]
+      summary: Update a hospital
+      description: Enforced admin-only (`allow('admin')`), but no tenant scoping — an admin may edit another tenant's hospital.
+      x-rbac-issue: { id: RBAC-HOS-W, type: Missing tenant scoping on write }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Hospital' }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Hospital' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/hospital-settings:
+    get:
+      tags: [Hospital Settings]
+      summary: List full hospital settings (owner, tax, finances, lawsuits)
+      description: >
+        **[RBAC ISSUE]** Intended to be admin-only (the UI hides this page from
+        doctor/patient with a 403), but the endpoint is only `auth`-gated, so
+        ANY authenticated user can read every hospital's sensitive financial
+        and legal data.
+      x-rbac-issue:
+        id: VULN-HS
+        type: Broken access control (sensitive data exposure)
+        intended: admin
+        actual: any authenticated user
+      responses:
+        '200':
+          description: All hospitals, full detail
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/HospitalSettings' } }
+
+  /api/hospital-settings/{hospitalId}:
+    parameters:
+      - $ref: '#/components/parameters/hospitalId'
+    get:
+      tags: [Hospital Settings]
+      summary: Get one hospital's full settings
+      description: '**[RBAC ISSUE]** Same as the list route — intended admin-only, actually any authenticated user.'
+      x-rbac-issue: { id: VULN-HS, type: Broken access control, intended: admin, actual: any authenticated user }
+      responses:
+        '200': { description: Hospital settings, content: { application/json: { schema: { $ref: '#/components/schemas/HospitalSettings' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/users:
+    get:
+      tags: [Users]
+      summary: List users
+      description: Admin sees their tenant's users; other roles see only themselves.
+      responses:
+        '200': { description: Users, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/User' } } } } }
+    post:
+      tags: [Users]
+      summary: Create a user
+      description: Enforced admin-only.
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/userId'
+    get:
+      tags: [Users]
+      summary: Get a user by id
+      description: >
+        **[RBAC ISSUE]** No scoping — any authenticated user can read any user
+        record, and the record includes the plaintext `password` field.
+      x-rbac-issue: { id: RBAC-USR, type: IDOR + credential exposure }
+      responses:
+        '200': { description: User, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+    put:
+      tags: [Users]
+      summary: Update a user
+      description: Enforced admin-only, but no tenant scoping.
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Users]
+      summary: Delete a user
+      description: Enforced admin-only, but no tenant scoping.
+      responses:
+        '200': { $ref: '#/components/responses/Deleted' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/patients:
+    get:
+      tags: [Patients]
+      summary: List patients
+      description: Admin → tenant patients; doctor → own patients; patient → own record.
+      responses:
+        '200': { description: Patients, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Patient' } } } } }
+    post:
+      tags: [Patients]
+      summary: Create a patient
+      description: Enforced admin-only.
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Patient' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Patient' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/patients/{patientId}:
+    parameters:
+      - $ref: '#/components/parameters/patientId'
+    get:
+      tags: [Patients]
+      summary: Get a patient by id
+      description: '**[RBAC ISSUE — RBAC-01/09]** No tenant/ownership check; any authenticated user can read any patient.'
+      x-rbac-issue: { id: RBAC-01, type: IDOR (cross-tenant PHI read) }
+      responses:
+        '200': { description: Patient, content: { application/json: { schema: { $ref: '#/components/schemas/Patient' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Patients]
+      summary: Update a patient
+      description: >
+        **[RBAC ISSUE — RBAC-02]** Only `auth` is required — no role or tenant
+        check. Any authenticated user (including a patient) can modify any
+        patient record.
+      x-rbac-issue: { id: RBAC-02, type: Broken access control (write) }
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Patient' } } } }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Patient' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Patients]
+      summary: Delete a patient
+      description: Enforced admin-only, but no tenant scoping.
+      responses:
+        '200': { $ref: '#/components/responses/Deleted' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/doctors:
+    get:
+      tags: [Doctors]
+      summary: List doctors (tenant-scoped)
+      responses:
+        '200': { description: Doctors, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Doctor' } } } } }
+    post:
+      tags: [Doctors]
+      summary: Create a doctor
+      description: Enforced admin-only.
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Doctor' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Doctor' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/doctors/{doctorId}:
+    parameters:
+      - $ref: '#/components/parameters/doctorId'
+    get:
+      tags: [Doctors]
+      summary: Get a doctor by id
+      description: '**[RBAC ISSUE — RBAC-07]** No scoping; any authenticated user can read any doctor.'
+      x-rbac-issue: { id: RBAC-07, type: IDOR }
+      responses:
+        '200': { description: Doctor, content: { application/json: { schema: { $ref: '#/components/schemas/Doctor' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Doctors]
+      summary: Update a doctor
+      description: '**[RBAC ISSUE — RBAC-08]** No role/tenant check; any authenticated user can modify any doctor.'
+      x-rbac-issue: { id: RBAC-08, type: Broken access control (write) }
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Doctor' } } } }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Doctor' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Doctors]
+      summary: Delete a doctor
+      description: Enforced admin-only, but no tenant scoping.
+      responses:
+        '200': { $ref: '#/components/responses/Deleted' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/appointments:
+    get:
+      tags: [Appointments]
+      summary: List appointments
+      description: Admin → tenant; doctor → own; patient → own. (List is scoped; the by-id route is not.)
+      responses:
+        '200': { description: Appointments, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Appointment' } } } } }
+    post:
+      tags: [Appointments]
+      summary: Book an appointment
+      description: Any authenticated user (patients book their own; UI auto-fills patientId).
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Appointment' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Appointment' } } } }
+
+  /api/appointments/{appointmentId}:
+    parameters:
+      - $ref: '#/components/parameters/appointmentId'
+    get:
+      tags: [Appointments]
+      summary: Get an appointment by id
+      description: '**[RBAC ISSUE — RBAC-10]** No scoping; any authenticated user can read any appointment.'
+      x-rbac-issue: { id: RBAC-10, type: IDOR }
+      responses:
+        '200': { description: Appointment, content: { application/json: { schema: { $ref: '#/components/schemas/Appointment' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Appointments]
+      summary: Update an appointment
+      description: Any authenticated user; no ownership check.
+      x-rbac-issue: { id: RBAC-APT-W, type: Broken access control (write) }
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Appointment' } } } }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Appointment' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Appointments]
+      summary: Cancel/delete an appointment
+      description: Any authenticated user; no ownership check.
+      x-rbac-issue: { id: RBAC-APT-D, type: Broken access control (delete) }
+      responses:
+        '200': { $ref: '#/components/responses/Deleted' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/reports:
+    get:
+      tags: [Reports]
+      summary: List reports
+      description: >
+        **[RBAC ISSUE]** Only tenant-scoped — a patient receives EVERY report
+        in their tenant, not just their own. (The UI hides the extras, but the
+        endpoint leaks them.)
+      x-rbac-issue: { id: RBAC-RPT-L, type: Broken object-level authorization (PHI leak to patient) }
+      responses:
+        '200': { description: Reports, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Report' } } } } }
+    post:
+      tags: [Reports]
+      summary: Create a report
+      description: Any authenticated user (UI restricts to admin/assigned doctor).
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Report' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Report' } } } }
+
+  /api/reports/{reportId}:
+    parameters:
+      - $ref: '#/components/parameters/reportId'
+    get:
+      tags: [Reports]
+      summary: Get a report by id
+      description: '**[RBAC ISSUE — RBAC-03]** No scoping; any authenticated user can read any report.'
+      x-rbac-issue: { id: RBAC-03, type: IDOR (PHI read) }
+      responses:
+        '200': { description: Report, content: { application/json: { schema: { $ref: '#/components/schemas/Report' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Reports]
+      summary: Update a report
+      description: >
+        Any authenticated user at the API level. The UI restricts edit to admin
+        and the assigned doctor (`report.doctorId`); patients get read-only.
+      x-rbac-issue: { id: RBAC-RPT-W, type: Broken access control (write) }
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Report' } } } }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Report' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Reports]
+      summary: Delete a report
+      description: 'Any authenticated user at the API level. UI restricts to admin + assigned doctor.'
+      x-rbac-issue: { id: RBAC-RPT-D, type: Broken access control (delete) }
+      responses:
+        '200': { $ref: '#/components/responses/Deleted' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/prescriptions:
+    get:
+      tags: [Prescriptions]
+      summary: List prescriptions
+      description: '**[RBAC ISSUE]** Tenant-scoped only — a patient sees every prescription in the tenant.'
+      x-rbac-issue: { id: RBAC-RX-L, type: Broken object-level authorization (leak to patient) }
+      responses:
+        '200': { description: Prescriptions, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Prescription' } } } } }
+    post:
+      tags: [Prescriptions]
+      summary: Create a prescription
+      description: '**[RBAC ISSUE — RBAC-04]** Any authenticated user (including a patient) can create a prescription for anyone.'
+      x-rbac-issue: { id: RBAC-04, type: Broken access control (privilege) }
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Prescription' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Prescription' } } } }
+
+  /api/prescriptions/{prescriptionId}:
+    parameters:
+      - $ref: '#/components/parameters/prescriptionId'
+    get:
+      tags: [Prescriptions]
+      summary: Get a prescription by id
+      description: No scoping; any authenticated user can read any prescription.
+      x-rbac-issue: { id: RBAC-RX-R, type: IDOR }
+      responses:
+        '200': { description: Prescription, content: { application/json: { schema: { $ref: '#/components/schemas/Prescription' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Prescriptions]
+      summary: Update a prescription
+      description: '**[RBAC ISSUE — RBAC-05]** Any authenticated user can edit any prescription.'
+      x-rbac-issue: { id: RBAC-05, type: Broken access control (write) }
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Prescription' } } } }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Prescription' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Prescriptions]
+      summary: Delete a prescription
+      description: Any authenticated user; no ownership check.
+      x-rbac-issue: { id: RBAC-RX-D, type: Broken access control (delete) }
+      responses:
+        '200': { $ref: '#/components/responses/Deleted' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/advice:
+    get:
+      tags: [Advice]
+      summary: List medical advice
+      description: '**[RBAC ISSUE]** Tenant-scoped only — a patient sees all advice in the tenant.'
+      x-rbac-issue: { id: RBAC-ADV-L, type: Broken object-level authorization (leak to patient) }
+      responses:
+        '200': { description: Advice, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Advice' } } } } }
+    post:
+      tags: [Advice]
+      summary: Create medical advice
+      description: Any authenticated user (UI restricts to admin/assigned doctor).
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Advice' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Advice' } } } }
+
+  /api/advice/{adviceId}:
+    parameters:
+      - $ref: '#/components/parameters/adviceId'
+    put:
+      tags: [Advice]
+      summary: Update medical advice
+      description: >
+        Any authenticated user at the API level. The UI restricts edit to admin
+        and the assigned doctor (`advice.doctorId`); patients get read-only.
+      x-rbac-issue: { id: RBAC-ADV-W, type: Broken access control (write) }
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Advice' } } } }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Advice' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Advice]
+      summary: Delete medical advice
+      description: '**[RBAC ISSUE — RBAC-06]** No owner check; any authenticated user can delete any advice.'
+      x-rbac-issue: { id: RBAC-06, type: Broken access control (delete) }
+      responses:
+        '200': { $ref: '#/components/responses/Deleted' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        HS256-signed JWT from /api/auth/login. NOTE: the server does not verify
+        the signature (intentional vuln), so tampered tokens are accepted.
+
+  parameters:
+    hospitalId:     { name: hospitalId, in: path, required: true, schema: { type: string, example: HOSP1001 } }
+    userId:         { name: userId, in: path, required: true, schema: { type: string, example: ADM1001 } }
+    patientId:      { name: patientId, in: path, required: true, schema: { type: string, example: PAT1001 } }
+    doctorId:       { name: doctorId, in: path, required: true, schema: { type: string, example: DOC1001 } }
+    appointmentId:  { name: appointmentId, in: path, required: true, schema: { type: integer, example: 1000 } }
+    reportId:       { name: reportId, in: path, required: true, schema: { type: string, example: RPT1001 } }
+    prescriptionId: { name: prescriptionId, in: path, required: true, schema: { type: string, example: RX1001 } }
+    adviceId:       { name: adviceId, in: path, required: true, schema: { type: string, example: ADV1001 } }
+
+  responses:
+    Unauthorized: { description: Missing/invalid token, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Forbidden:    { description: Role not permitted, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    NotFound:     { description: Not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Deleted:      { description: Deleted, content: { application/json: { schema: { type: object, properties: { deleted: { type: boolean } } } } } }
+
+  schemas:
+    Error:
+      type: object
+      properties: { error: { type: string } }
+    Health:
+      type: object
+      properties:
+        status: { type: string, example: ok }
+        service: { type: string, example: MedSecure API }
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, example: apollo.admin }
+        password: { type: string, example: Admin@12345 }
+    LoginResponse:
+      type: object
+      properties:
+        token: { type: string }
+        user: { $ref: '#/components/schemas/UserPublic' }
+    UserPublic:
+      type: object
+      properties:
+        id: { type: string, example: ADM1001 }
+        username: { type: string }
+        name: { type: string }
+        role: { type: string, enum: [admin, doctor, patient] }
+        tenantId: { type: string, example: HOSP1001 }
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserPublic'
+        - type: object
+          properties:
+            password: { type: string, description: 'Plaintext (intentionally exposed by GET /users/{id})' }
+            email: { type: string }
+    Hospital:
+      type: object
+      properties:
+        id: { type: string, example: HOSP1001 }
+        name: { type: string }
+        city: { type: string }
+        specialties: { type: array, items: { type: string } }
+    HospitalSettings:
+      allOf:
+        - $ref: '#/components/schemas/Hospital'
+        - type: object
+          properties:
+            owner: { type: string }
+            registeredOn: { type: string }
+            taxNumber: { type: string }
+            licenseNo: { type: string }
+            finances:
+              type: object
+              properties:
+                currency: { type: string }
+                annualRevenue: { type: integer }
+                netProfit: { type: integer }
+                outstandingDebt: { type: integer }
+                lastAuditDate: { type: string }
+                auditor: { type: string }
+            pendingLawsuits:
+              type: array
+              items:
+                type: object
+                properties:
+                  caseNo: { type: string }
+                  court: { type: string }
+                  plaintiff: { type: string }
+                  claim: { type: string }
+                  amountClaimed: { type: integer }
+                  status: { type: string }
+                  filed: { type: string }
+    Patient:
+      type: object
+      properties:
+        id: { type: string, example: PAT1001 }
+        userId: { type: string, nullable: true }
+        tenantId: { type: string }
+        doctorId: { type: string, example: DOC1001 }
+        name: { type: string }
+        gender: { type: string }
+        dob: { type: string }
+        bloodGroup: { type: string }
+        phone: { type: string }
+        conditions: { type: array, items: { type: string } }
+    Doctor:
+      type: object
+      properties:
+        id: { type: string, example: DOC1001 }
+        userId: { type: string, nullable: true }
+        tenantId: { type: string }
+        name: { type: string }
+        specialty: { type: string }
+        license: { type: string }
+    Appointment:
+      type: object
+      properties:
+        id: { type: integer, example: 1000 }
+        tenantId: { type: string }
+        patientId: { type: string, example: PAT1001 }
+        doctorId: { type: string, example: DOC1001 }
+        date: { type: string, format: date }
+        time: { type: string, example: '10:30' }
+        status: { type: string, enum: [Requested, Confirmed, Completed, Cancelled, Rescheduled] }
+        reason: { type: string }
+    Report:
+      type: object
+      properties:
+        id: { type: string, example: RPT1001 }
+        tenantId: { type: string }
+        patientId: { type: string }
+        doctorId: { type: string, description: 'Assigned doctor (governs UI edit/delete rights)' }
+        type: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        uploadedAt: { type: string, format: date }
+    Prescription:
+      type: object
+      properties:
+        id: { type: string, example: RX1001 }
+        tenantId: { type: string }
+        patientId: { type: string }
+        doctorId: { type: string }
+        medicine: { type: string }
+        dosage: { type: string }
+        frequency: { type: string }
+        instructions: { type: string }
+        status: { type: string, enum: [Active, Completed, On hold] }
+    Advice:
+      type: object
+      properties:
+        id: { type: string, example: ADV1001 }
+        tenantId: { type: string }
+        patientId: { type: string }
+        doctorId: { type: string, description: 'Assigned doctor (governs UI edit/delete rights)' }
+        text: { type: string }
+        createdAt: { type: string, format: date }

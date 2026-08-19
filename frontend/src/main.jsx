@@ -58,6 +58,37 @@ const PATIENT_SCOPED=new Set(['/reports','/appointments','/advice','/prescriptio
 const scopeForPatient=(user,path,rows)=>
  (user.role==='patient' && PATIENT_SCOPED.has(path)) ? rows.filter(r=>r.patientId===user.id) : rows;
 const ownedByPatient=(user,arr)=> user.role==='patient' ? (arr||[]).filter(r=>r.patientId===user.id) : (arr||[]);
+
+// --- Write permissions (UI-level) ---
+// Reports & Medical Advice may only be created/edited/deleted by admin, or the
+// assigned doctor (the record's doctorId). Patients get read-only views.
+const DOCTOR_OWNED=new Set(['reports','advice']);
+const canWriteResource=(user,resource)=>{
+ if(!WRITABLE.has(resource)) return false;
+ if(user.role==='admin') return true;
+ if(DOCTOR_OWNED.has(resource)) return user.role==='doctor'; // never patients
+ return true;
+};
+const canModifyRow=(user,resource,row)=>{
+ if(user.role==='admin') return true;
+ if(DOCTOR_OWNED.has(resource)) return user.role==='doctor' && row.doctorId===user.id; // assigned doctor only
+ return WRITABLE.has(resource);
+};
+
+// --- Form field rendering ---
+const STATUS_OPTIONS={appointments:['Requested','Confirmed','Completed','Cancelled','Rescheduled'],prescriptions:['Active','Completed','On hold']};
+const STATIC_OPTIONS={role:['admin','doctor','patient'],gender:['Male','Female','Other'],bloodGroup:['O+','O-','A+','A-','B+','B-','AB+','AB-']};
+const fieldDescriptor=(resource,key,lists)=>{
+ if(key==='patientId') return {type:'entity',options:lists.patients||[]};
+ if(key==='doctorId') return {type:'entity',options:lists.doctors||[]};
+ if(key==='date'||key==='dob') return {type:'date'};
+ if(key==='time') return {type:'time'};
+ if(key==='status') return {type:'select',options:STATUS_OPTIONS[resource]||['Active','Completed']};
+ if(STATIC_OPTIONS[key]) return {type:'select',options:STATIC_OPTIONS[key]};
+ if(LONG_FIELDS.has(key)) return {type:'textarea'};
+ return {type:'text'};
+};
+const entityLabel=o=>o.name?`${o.name} — ${o.id}`:o.id;
 const resourceForPath=p=>({'/hospital-settings':'hospitals'}[p]||p.slice(1));
 const singular=r=>({patients:'patient',doctors:'doctor',appointments:'appointment',reports:'report',prescriptions:'prescription',advice:'advice',users:'user',hospitals:'hospital'}[r]||r);
 const labelize=k=>k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());
@@ -71,7 +102,7 @@ const templates={
  patients:{name:'',gender:'',dob:'',bloodGroup:'',phone:'',conditions:[],doctorId:''},
  doctors:{name:'',specialty:'',license:'',userId:''},
  appointments:{patientId:'',doctorId:'',date:'',time:'',status:'Requested',reason:''},
- reports:{patientId:'',type:'',title:'',summary:''},
+ reports:{patientId:'',doctorId:'',type:'',title:'',summary:''},
  prescriptions:{patientId:'',doctorId:'',medicine:'',dosage:'',frequency:'',instructions:'',status:'Active'},
  advice:{patientId:'',doctorId:'',text:''},
  users:{username:'',password:'',name:'',role:'patient',email:''},
@@ -188,7 +219,7 @@ function App(){
        <div className="profile"><div className="avatar">{user.name[0]}</div><div><b>{user.name}</b><span>{user.role} · {user.tenantId.replace('hospital-','')}</span></div></div>
      </header>
      {err&&<div className="error">{err}</div>}
-     {dm&&detail?.p===path?<Detail resource={dm.resource} item={detail.v} back={()=>navigate(listPathForResource(dm.resource))} refresh={refresh}/>:data?.p===path&&<Content path={path} data={data.v} user={user} navigate={navigate} refresh={refresh}/>}
+     {dm&&detail?.p===path?<Detail resource={dm.resource} item={detail.v} back={()=>navigate(listPathForResource(dm.resource))} refresh={refresh} user={user}/>:data?.p===path&&<Content path={path} data={data.v} user={user} navigate={navigate} refresh={refresh}/>}
    </main>
  </div>
 }
@@ -197,7 +228,7 @@ function Card({title,value,sub}){return <div className="card"><span>{title}</spa
 
 function Content({path,data,navigate,refresh,user}){
  const resource=resourceForPath(path);
- const canWrite=WRITABLE.has(resource);
+ const canWrite=canWriteResource(user,resource);
  const [editing,setEditing]=useState(undefined); // undefined=closed · null=create · object=edit
  const del=async row=>{ if(!confirm(`Delete this ${singular(resource)}?`))return; try{await crud.remove(resource,row.id); refresh();}catch(e){alert(e.message)} };
  const onSaved=()=>{ setEditing(undefined); refresh(); };
@@ -216,37 +247,66 @@ function Content({path,data,navigate,refresh,user}){
  const keys=['id',...Object.keys(rows[0]||{}).filter(k=>!hidden.includes(k)).slice(0,6)];
  return <><section>
    <div className="section-head"><div><h2>{routeFor(path).name}</h2><span>{rows.length} records · click a row for details</span></div>{canWrite&&<button className="primary" onClick={()=>setEditing(null)}>+ New</button>}</div>
-   <Table rows={rows} keys={keys} resource={resource} navigate={navigate} onEdit={canWrite?setEditing:null} onDelete={canWrite?del:null}/>
- </section>{editing!==undefined&&<Editor resource={resource} item={editing} onClose={()=>setEditing(undefined)} onSaved={onSaved}/>}</>;
+   <Table rows={rows} keys={keys} resource={resource} navigate={navigate} onEdit={canWrite?setEditing:null} onDelete={canWrite?del:null} canModify={r=>canModifyRow(user,resource,r)}/>
+ </section>{editing!==undefined&&<Editor resource={resource} item={editing} onClose={()=>setEditing(undefined)} onSaved={onSaved} user={user}/>}</>;
 }
 
-function Table({rows,keys,resource,navigate,onEdit,onDelete}){
+function Table({rows,keys,resource,navigate,onEdit,onDelete,canModify=()=>true}){
  const actions=onEdit||onDelete;
- return <div className="table-wrap"><table><thead><tr>{keys.map(k=><th key={k}>{labelize(k)}</th>)}{actions&&<th>Actions</th>}</tr></thead><tbody>{rows.map((r,i)=><tr key={r.id||i} className="clickable-row" onClick={()=>r.id!=null&&navigate(`/${resource}/${r.id}`)} title={r.id!=null?'Open details':''}>{keys.map(k=><td key={k}>{fmt(r[k])}</td>)}{actions&&<td className="row-actions" onClick={e=>e.stopPropagation()}>{onEdit&&<button className="mini" onClick={()=>onEdit(r)}>Edit</button>}{onDelete&&<button className="mini danger" onClick={()=>onDelete(r)}>Delete</button>}</td>}</tr>)}</tbody></table>{!rows.length&&<div className="empty">No records found.</div>}</div>
+ return <div className="table-wrap"><table><thead><tr>{keys.map(k=><th key={k}>{labelize(k)}</th>)}{actions&&<th>Actions</th>}</tr></thead><tbody>{rows.map((r,i)=><tr key={r.id||i} className="clickable-row" onClick={()=>r.id!=null&&navigate(`/${resource}/${r.id}`)} title={r.id!=null?'Open details':''}>{keys.map(k=><td key={k}>{fmt(r[k])}</td>)}{actions&&<td className="row-actions" onClick={e=>e.stopPropagation()}>{canModify(r)?<>{onEdit&&<button className="mini" onClick={()=>onEdit(r)}>Edit</button>}{onDelete&&<button className="mini danger" onClick={()=>onDelete(r)}>Delete</button>}</>:<span className="row-lock">—</span>}</td>}</tr>)}</tbody></table>{!rows.length&&<div className="empty">No records found.</div>}</div>
 }
 
-function Detail({resource,item,back,refresh}){
- const canWrite=WRITABLE.has(resource);
+function Detail({resource,item,back,refresh,user}){
+ const canMod=canModifyRow(user,resource,item);
  const [editing,setEditing]=useState(false);
  const del=async()=>{ if(!confirm(`Delete this ${singular(resource)}?`))return; try{await crud.remove(resource,item.id); back();}catch(e){alert(e.message)} };
- return <section><div className="section-head"><h2>{labelize(singular(resource))} details</h2><div className="head-actions">{canWrite&&<button className="secondary" onClick={()=>setEditing(true)}>Edit</button>}{canWrite&&<button className="secondary danger" onClick={del}>Delete</button>}<button className="secondary" onClick={back}>← Back</button></div></div>
+ return <section><div className="section-head"><h2>{labelize(singular(resource))} details</h2><div className="head-actions">{canMod&&<button className="secondary" onClick={()=>setEditing(true)}>Edit</button>}{canMod&&<button className="secondary danger" onClick={del}>Delete</button>}<button className="secondary" onClick={back}>← Back</button></div></div>
   <div className="detail-grid">{Object.entries(item).filter(([k])=>k!=='password').map(([k,v])=><div className="detail-field" key={k}><span>{labelize(k)}</span><strong>{fmt(v)}</strong></div>)}</div>
-  {editing&&<Editor resource={resource} item={item} onClose={()=>setEditing(false)} onSaved={()=>{setEditing(false);refresh();}}/>}
+  {editing&&<Editor resource={resource} item={item} onClose={()=>setEditing(false)} onSaved={()=>{setEditing(false);refresh();}} user={user}/>}
  </section>;
 }
 
-// Generic create/edit form. Fields come from the record (edit) or a per-resource
-// template (create); array fields are comma-separated. tenantId/id stay server-side.
-function Editor({resource,item,onClose,onSaved}){
+function FieldInput({d,value,onChange}){
+ if(d.type==='entity') return <select value={value} onChange={e=>onChange(e.target.value)}><option value="">— select —</option>{d.options.map(o=><option key={o.id} value={o.id}>{entityLabel(o)}</option>)}</select>;
+ if(d.type==='select') return <select value={value} onChange={e=>onChange(e.target.value)}><option value="">— select —</option>{d.options.map(o=><option key={o} value={o}>{o}</option>)}</select>;
+ if(d.type==='date') return <input type="date" value={value} onChange={e=>onChange(e.target.value)}/>;
+ if(d.type==='time') return <input type="time" value={value} onChange={e=>onChange(e.target.value)}/>;
+ if(d.type==='textarea') return <textarea value={value} onChange={e=>onChange(e.target.value)}/>;
+ return <input value={value} onChange={e=>onChange(e.target.value)}/>;
+}
+
+// Create/edit form. Entity references (patientId/doctorId) render as dropdowns,
+// dates/times as pickers. A patient's own patientId and a doctor's own doctorId
+// are auto-filled and hidden (no ID typing). Array fields are comma-separated.
+function Editor({resource,item,onClose,onSaved,user}){
  const tmpl=item||templates[resource]||{};
- const fields=Object.keys(tmpl).filter(k=>!['id','tenantId'].includes(k));
+ const allFields=Object.keys(tmpl).filter(k=>!['id','tenantId'].includes(k));
+ const hiddenOwn=k=>(user.role==='patient'&&k==='patientId')||(user.role==='doctor'&&k==='doctorId');
+ const fields=allFields.filter(k=>!hiddenOwn(k));
  const [form,setForm]=useState(()=>Object.fromEntries(fields.map(k=>[k,Array.isArray(tmpl[k])?tmpl[k].join(', '):(tmpl[k]&&typeof tmpl[k]==='object'?JSON.stringify(tmpl[k]):tmpl[k]??'')])));
+ const [lists,setLists]=useState({patients:[],doctors:[]});
  const [err,setErr]=useState(''),[busy,setBusy]=useState(false);
  const set=(k,v)=>setForm(f=>({...f,[k]:v}));
+ useEffect(()=>{
+   const need={patients:fields.includes('patientId'),doctors:fields.includes('doctorId')};
+   (async()=>{
+     try{
+       const [pts,docs]=await Promise.all([
+         need.patients?api('/patients'):Promise.resolve([]),
+         need.doctors?api('/doctors'):Promise.resolve([]),
+       ]);
+       setLists({patients:Array.isArray(pts)?pts:[],doctors:Array.isArray(docs)?docs:[]});
+     }catch(e){/* dropdowns just stay empty */}
+   })();
+ // eslint-disable-next-line
+ },[]);
  const save=async()=>{ setBusy(true); setErr('');
    try{
      const body={};
      for(const k of fields){ const isArr=Array.isArray(tmpl[k])||ARRAY_FIELDS.has(k); body[k]=isArr?String(form[k]).split(',').map(s=>s.trim()).filter(Boolean):form[k]; }
+     // Auto-fill the hidden ownership fields to the current user.
+     if(allFields.includes('patientId')&&user.role==='patient') body.patientId=user.id;
+     if(allFields.includes('doctorId')&&user.role==='doctor') body.doctorId=user.id;
      const saved=item?await crud.update(resource,item.id,body):await crud.create(resource,body);
      onSaved(saved);
    }catch(e){setErr(e.message); setBusy(false)}
@@ -254,7 +314,7 @@ function Editor({resource,item,onClose,onSaved}){
  return <div className="modal-backdrop" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
    <h3>{item?'Edit':'New'} {singular(resource)}</h3>
    {err&&<div className="error">{err}</div>}
-   <div className="form-grid">{fields.map(k=><label key={k} className={LONG_FIELDS.has(k)?'wide':''}>{labelize(k)}{LONG_FIELDS.has(k)?<textarea value={form[k]} onChange={e=>set(k,e.target.value)}/>:<input value={form[k]} onChange={e=>set(k,e.target.value)}/>}</label>)}</div>
+   <div className="form-grid">{fields.map(k=>{const d=fieldDescriptor(resource,k,lists);return <label key={k} className={d.type==='textarea'?'wide':''}>{labelize(k)}<FieldInput d={d} value={form[k]} onChange={v=>set(k,v)}/></label>;})}</div>
    <div className="modal-actions"><button className="secondary" onClick={onClose}>Cancel</button><button className="primary" disabled={busy} onClick={save}>{busy?'Saving…':item?'Save changes':'Create'}</button></div>
  </div></div>;
 }

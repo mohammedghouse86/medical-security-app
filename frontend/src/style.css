@@ -181,9 +181,11 @@ td:first-child{color:var(--text);font-weight:600}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
 .form-grid label{display:block;font-size:12px;font-weight:600;color:var(--text-2)}
 .form-grid label.wide{grid-column:1/-1}
-.form-grid input,.form-grid textarea{display:block;width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);outline:none;transition:border-color .15s, box-shadow .15s}
+.form-grid input,.form-grid textarea,.form-grid select{display:block;width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);outline:none;transition:border-color .15s, box-shadow .15s}
+.form-grid select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2378839b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
 .form-grid textarea{min-height:76px;resize:vertical}
-.form-grid input:focus,.form-grid textarea:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--ring)}
+.form-grid input:focus,.form-grid textarea:focus,.form-grid select:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--ring)}
+.row-lock{color:var(--faint)}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
 
 /* ============================================================

@@ -73,10 +73,33 @@ const listPathForResource=r=>({
  prescriptions:'/prescriptions',advice:'/advice',users:'/users',hospitals:'/hospital-settings'
 }[r]);
 
+const Icon={
+ user:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+ lock:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+ eye:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>,
+ eyeOff:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c6.5 0 10 7 10 7a13.2 13.2 0 0 1-2.16 2.94M6.06 6.06A13.4 13.4 0 0 0 2 11s3.5 7 10 7a9 9 0 0 0 4.94-1.06"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M2 2l20 20"/></svg>,
+};
+
 function Login({onLogin}){
- const [u,setU]=useState(''),[p,setP]=useState(''),[e,setE]=useState(''),[show,setShow]=useState(false);
- const go=async ev=>{ev.preventDefault();try{const x=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})});localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl('/dashboard'));onLogin(x.user)}catch(x){setE(x.message)}};
- return <div className="login"><div className="login-card"><div className="brand"><span>✚</span> MedSecure</div><p className="eyebrow">CARE MANAGEMENT PLATFORM</p><h1>Welcome back</h1><p className="muted">Secure clinical workflows for hospitals and care teams.</p><form onSubmit={go}><label>Username<input value={u} onChange={e=>setU(e.target.value)} autoComplete="username" placeholder="Enter your username"/></label><label>Password<span className="pw"><input type={show?'text':'password'} value={p} onChange={e=>setP(e.target.value)} autoComplete="current-password" placeholder="Enter your password"/><button type="button" className="pw-toggle" onClick={()=>setShow(s=>!s)} aria-label={show?'Hide password':'Show password'} aria-pressed={show}>{show?'Hide':'Show'}</button></span></label>{e&&<div className="error">{e}</div>}<button>Sign in</button></form></div></div>
+ const [u,setU]=useState(''),[p,setP]=useState(''),[e,setE]=useState(''),[show,setShow]=useState(false),[busy,setBusy]=useState(false);
+ const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const x=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})});localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl('/dashboard'));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
+ return <div className="login">
+   <div className="login-card">
+     <div className="brand"><span>✚</span> MedSecure</div>
+     <p className="eyebrow">Care Management Platform</p>
+     <h1>Welcome back</h1>
+     <p className="muted">Sign in to access secure clinical workflows for your care team.</p>
+     <form onSubmit={go}>
+       <label className="field-label" htmlFor="lg-user">Username</label>
+       <div className="field"><i className="field-icon">{Icon.user}</i><input id="lg-user" value={u} onChange={e=>setU(e.target.value)} autoComplete="username" placeholder="you@hospital.test"/></div>
+       <label className="field-label" htmlFor="lg-pass">Password</label>
+       <div className="field"><i className="field-icon">{Icon.lock}</i><input id="lg-pass" type={show?'text':'password'} value={p} onChange={e=>setP(e.target.value)} autoComplete="current-password" placeholder="Enter your password"/><button type="button" className="eye" onClick={()=>setShow(s=>!s)} aria-label={show?'Hide password':'Show password'} aria-pressed={show} title={show?'Hide password':'Show password'}>{show?Icon.eyeOff:Icon.eye}</button></div>
+       {e&&<div className="error">{e}</div>}
+       <button className="login-btn" disabled={busy}>{busy?'Signing in…':'Sign in'}</button>
+     </form>
+     <p className="login-foot">Protected environment · authorized users only</p>
+   </div>
+ </div>;
 }
 
 function Unauthorized({goDashboard}) {

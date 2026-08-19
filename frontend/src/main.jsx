@@ -51,7 +51,11 @@ const WRITABLE=new Set(['patients','doctors','appointments','reports','prescript
 const resourceForPath=p=>({'/hospital-settings':'hospitals'}[p]||p.slice(1));
 const singular=r=>({patients:'patient',doctors:'doctor',appointments:'appointment',reports:'report',prescriptions:'prescription',advice:'advice',users:'user',hospitals:'hospital'}[r]||r);
 const labelize=k=>k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());
-const fmt=v=>Array.isArray(v)?v.join(', '):(v&&typeof v==='object')?JSON.stringify(v):String(v??'—');
+const fmt=v=>{
+ if(Array.isArray(v)) return v.length?v.map(x=>x&&typeof x==='object'?JSON.stringify(x):String(x)).join(', '):'—';
+ if(v&&typeof v==='object') return JSON.stringify(v);
+ return String(v??'—');
+};
 // Field templates for the "New" form, per resource. tenantId is set by the API.
 const templates={
  patients:{name:'',gender:'',dob:'',bloodGroup:'',phone:'',conditions:[],doctorId:''},
@@ -169,9 +173,10 @@ function Content({path,data,navigate,refresh}){
  if(path==='/hospital-settings')return <HospitalSettings hospitals={Array.isArray(data)?data:[]}/>;
 
  const rows=Array.isArray(data)?data:[];
- const keys=path==='/users'
-   ? Object.keys(rows[0]||{}).filter(k=>!['id','password','tenantId'].includes(k)).slice(0,6)
-   : Object.keys(rows[0]||{}).filter(k=>!['id','tenantId'].includes(k)).slice(0,6);
+ // Always surface the record id first (e.g. PAT1002, DOC1003, appointment 1000),
+ // then up to six more fields. Passwords/tenantId stay hidden.
+ const hidden=path==='/users'?['id','password','tenantId']:['id','tenantId'];
+ const keys=['id',...Object.keys(rows[0]||{}).filter(k=>!hidden.includes(k)).slice(0,6)];
  return <><section>
    <div className="section-head"><div><h2>{routeFor(path).name}</h2><span>{rows.length} records · click a row for details</span></div>{canWrite&&<button className="primary" onClick={()=>setEditing(null)}>+ New</button>}</div>
    <Table rows={rows} keys={keys} resource={resource} navigate={navigate} onEdit={canWrite?setEditing:null} onDelete={canWrite?del:null}/>

@@ -38,16 +38,16 @@ function makeToken(user) {
   return `${header}.${payload}.${sign(`${header}.${payload}`)}`;
 }
 
+// INTENTIONAL (vuln): the token is HS256-signed when issued (so it has a real
+// third segment), but the signature is NOT verified here — the payload is
+// decoded and trusted after only an expiry check. A tampered payload (e.g.
+// role=admin, another tenantId) is accepted, which is the RBAC-bypass flaw.
 function auth(req,res,next) {
   const raw=(req.headers.authorization||'').replace(/^Bearer\s+/,'');
   if(!raw) return res.status(401).json({error:'Authentication required'});
   try {
     const parts=raw.split('.');
-    if(parts.length!==3) throw new Error('bad token');
-    // Verify the HMAC signature before trusting anything in the payload.
-    const expected=sign(`${parts[0]}.${parts[1]}`);
-    const got=parts[2];
-    if(got.length!==expected.length || !crypto.timingSafeEqual(Buffer.from(got),Buffer.from(expected))) throw new Error('bad signature');
+    if(parts.length<2) throw new Error('bad token');
     const p=JSON.parse(Buffer.from(parts[1], 'base64url').toString());
     if(!p.exp || p.exp < Math.floor(Date.now()/1000)) return res.status(401).json({error:'Token expired'});
     req.user=p;

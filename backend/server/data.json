@@ -885,6 +885,70 @@
       "name": "Dr. Neha Kapoor",
       "specialty": "Neurology",
       "license": "MED-SU-2001"
+    },
+    {
+      "id": "DOC1003",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "name": "Dr. Priya Nair",
+      "specialty": "General Medicine",
+      "license": "MED-AP-1003"
+    },
+    {
+      "id": "DOC1004",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "name": "Dr. Rohan Verma",
+      "specialty": "Dermatology",
+      "license": "MED-AP-1004"
+    },
+    {
+      "id": "DOC1005",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "name": "Dr. Isha Gupta",
+      "specialty": "Cardiology",
+      "license": "MED-AP-1005"
+    },
+    {
+      "id": "DOC1006",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "name": "Dr. Karan Malhotra",
+      "specialty": "Orthopaedics",
+      "license": "MED-AP-1006"
+    },
+    {
+      "id": "DOC1007",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "name": "Dr. Meera Iyer",
+      "specialty": "Pediatrics",
+      "license": "MED-SU-2003"
+    },
+    {
+      "id": "DOC1008",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "name": "Dr. Vikram Reddy",
+      "specialty": "General Medicine",
+      "license": "MED-SU-2004"
+    },
+    {
+      "id": "DOC1009",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "name": "Dr. Anjali Das",
+      "specialty": "Neurology",
+      "license": "MED-SU-2005"
+    },
+    {
+      "id": "DOC1010",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "name": "Dr. Sameer Joshi",
+      "specialty": "Radiology",
+      "license": "MED-SU-2006"
     }
   ],
   "appointments": [

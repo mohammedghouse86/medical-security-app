@@ -60,9 +60,10 @@ const scopeForPatient=(user,path,rows)=>
 const ownedByPatient=(user,arr)=> user.role==='patient' ? (arr||[]).filter(r=>r.patientId===user.id) : (arr||[]);
 
 // --- Write permissions (UI-level) ---
-// Reports & Medical Advice may only be created/edited/deleted by admin, or the
-// assigned doctor (the record's doctorId). Patients get read-only views.
-const DOCTOR_OWNED=new Set(['reports','advice']);
+// Reports, Medical Advice & Prescriptions may only be created/edited/deleted by
+// admin, or the assigned doctor (the record's doctorId). Patients get
+// read-only views. (UI only — the API stays reachable, intentional.)
+const DOCTOR_OWNED=new Set(['reports','advice','prescriptions']);
 const canWriteResource=(user,resource)=>{
  if(!WRITABLE.has(resource)) return false;
  if(user.role==='admin') return true;
@@ -74,6 +75,8 @@ const canModifyRow=(user,resource,row)=>{
  if(DOCTOR_OWNED.has(resource)) return user.role==='doctor' && row.doctorId===user.id; // assigned doctor only
  return WRITABLE.has(resource);
 };
+// A patient cancels an appointment by deleting it, so the action reads "Cancel".
+const deleteVerb=(user,resource)=> (user.role==='patient'&&resource==='appointments') ? 'Cancel' : 'Delete';
 
 // --- Form field rendering ---
 const STATUS_OPTIONS={appointments:['Requested','Confirmed','Completed','Cancelled','Rescheduled'],prescriptions:['Active','Completed','On hold']};
@@ -229,8 +232,9 @@ function Card({title,value,sub}){return <div className="card"><span>{title}</spa
 function Content({path,data,navigate,refresh,user}){
  const resource=resourceForPath(path);
  const canWrite=canWriteResource(user,resource);
+ const dVerb=deleteVerb(user,resource);
  const [editing,setEditing]=useState(undefined); // undefined=closed · null=create · object=edit
- const del=async row=>{ if(!confirm(`Delete this ${singular(resource)}?`))return; try{await crud.remove(resource,row.id); refresh();}catch(e){alert(e.message)} };
+ const del=async row=>{ if(!confirm(`${dVerb} this ${singular(resource)}?`))return; try{await crud.remove(resource,row.id); refresh();}catch(e){alert(e.message)} };
  const onSaved=()=>{ setEditing(undefined); refresh(); };
 
  if(path==='/dashboard'){
@@ -247,20 +251,21 @@ function Content({path,data,navigate,refresh,user}){
  const keys=['id',...Object.keys(rows[0]||{}).filter(k=>!hidden.includes(k)).slice(0,6)];
  return <><section>
    <div className="section-head"><div><h2>{routeFor(path).name}</h2><span>{rows.length} records · click a row for details</span></div>{canWrite&&<button className="primary" onClick={()=>setEditing(null)}>+ New</button>}</div>
-   <Table rows={rows} keys={keys} resource={resource} navigate={navigate} onEdit={canWrite?setEditing:null} onDelete={canWrite?del:null} canModify={r=>canModifyRow(user,resource,r)}/>
+   <Table rows={rows} keys={keys} resource={resource} navigate={navigate} onEdit={canWrite?setEditing:null} onDelete={canWrite?del:null} canModify={r=>canModifyRow(user,resource,r)} deleteLabel={dVerb}/>
  </section>{editing!==undefined&&<Editor resource={resource} item={editing} onClose={()=>setEditing(undefined)} onSaved={onSaved} user={user}/>}</>;
 }
 
-function Table({rows,keys,resource,navigate,onEdit,onDelete,canModify=()=>true}){
+function Table({rows,keys,resource,navigate,onEdit,onDelete,canModify=()=>true,deleteLabel='Delete'}){
  const actions=onEdit||onDelete;
- return <div className="table-wrap"><table><thead><tr>{keys.map(k=><th key={k}>{labelize(k)}</th>)}{actions&&<th>Actions</th>}</tr></thead><tbody>{rows.map((r,i)=><tr key={r.id||i} className="clickable-row" onClick={()=>r.id!=null&&navigate(`/${resource}/${r.id}`)} title={r.id!=null?'Open details':''}>{keys.map(k=><td key={k}>{fmt(r[k])}</td>)}{actions&&<td className="row-actions" onClick={e=>e.stopPropagation()}>{canModify(r)?<>{onEdit&&<button className="mini" onClick={()=>onEdit(r)}>Edit</button>}{onDelete&&<button className="mini danger" onClick={()=>onDelete(r)}>Delete</button>}</>:<span className="row-lock">—</span>}</td>}</tr>)}</tbody></table>{!rows.length&&<div className="empty">No records found.</div>}</div>
+ return <div className="table-wrap"><table><thead><tr>{keys.map(k=><th key={k}>{labelize(k)}</th>)}{actions&&<th>Actions</th>}</tr></thead><tbody>{rows.map((r,i)=><tr key={r.id||i} className="clickable-row" onClick={()=>r.id!=null&&navigate(`/${resource}/${r.id}`)} title={r.id!=null?'Open details':''}>{keys.map(k=><td key={k}>{fmt(r[k])}</td>)}{actions&&<td className="row-actions" onClick={e=>e.stopPropagation()}>{canModify(r)?<>{onEdit&&<button className="mini" onClick={()=>onEdit(r)}>Edit</button>}{onDelete&&<button className="mini danger" onClick={()=>onDelete(r)}>{deleteLabel}</button>}</>:<span className="row-lock">—</span>}</td>}</tr>)}</tbody></table>{!rows.length&&<div className="empty">No records found.</div>}</div>
 }
 
 function Detail({resource,item,back,refresh,user}){
  const canMod=canModifyRow(user,resource,item);
+ const dVerb=deleteVerb(user,resource);
  const [editing,setEditing]=useState(false);
- const del=async()=>{ if(!confirm(`Delete this ${singular(resource)}?`))return; try{await crud.remove(resource,item.id); back();}catch(e){alert(e.message)} };
- return <section><div className="section-head"><h2>{labelize(singular(resource))} details</h2><div className="head-actions">{canMod&&<button className="secondary" onClick={()=>setEditing(true)}>Edit</button>}{canMod&&<button className="secondary danger" onClick={del}>Delete</button>}<button className="secondary" onClick={back}>← Back</button></div></div>
+ const del=async()=>{ if(!confirm(`${dVerb} this ${singular(resource)}?`))return; try{await crud.remove(resource,item.id); back();}catch(e){alert(e.message)} };
+ return <section><div className="section-head"><h2>{labelize(singular(resource))} details</h2><div className="head-actions">{canMod&&<button className="secondary" onClick={()=>setEditing(true)}>Edit</button>}{canMod&&<button className="secondary danger" onClick={del}>{dVerb}</button>}<button className="secondary" onClick={back}>← Back</button></div></div>
   <div className="detail-grid">{Object.entries(item).filter(([k])=>k!=='password').map(([k,v])=><div className="detail-field" key={k}><span>{labelize(k)}</span><strong>{fmt(v)}</strong></div>)}</div>
   {editing&&<Editor resource={resource} item={item} onClose={()=>setEditing(false)} onSaved={()=>{setEditing(false);refresh();}} user={user}/>}
  </section>;
@@ -281,7 +286,9 @@ function FieldInput({d,value,onChange}){
 function Editor({resource,item,onClose,onSaved,user}){
  const tmpl=item||templates[resource]||{};
  const allFields=Object.keys(tmpl).filter(k=>!['id','tenantId'].includes(k));
- const hiddenOwn=k=>(user.role==='patient'&&k==='patientId')||(user.role==='doctor'&&k==='doctorId');
+ // Patients don't set appointment status (Confirmed/Rescheduled are doctor/admin
+ // decisions); new bookings default to "Requested", and cancelling = deleting.
+ const hiddenOwn=k=>(user.role==='patient'&&k==='patientId')||(user.role==='doctor'&&k==='doctorId')||(user.role==='patient'&&resource==='appointments'&&k==='status');
  const fields=allFields.filter(k=>!hiddenOwn(k));
  const [form,setForm]=useState(()=>Object.fromEntries(fields.map(k=>[k,Array.isArray(tmpl[k])?tmpl[k].join(', '):(tmpl[k]&&typeof tmpl[k]==='object'?JSON.stringify(tmpl[k]):tmpl[k]??'')])));
  const [lists,setLists]=useState({patients:[],doctors:[]});
@@ -307,6 +314,9 @@ function Editor({resource,item,onClose,onSaved,user}){
      // Auto-fill the hidden ownership fields to the current user.
      if(allFields.includes('patientId')&&user.role==='patient') body.patientId=user.id;
      if(allFields.includes('doctorId')&&user.role==='doctor') body.doctorId=user.id;
+     // A patient's new appointment is always a request; never overwrite an
+     // existing (possibly doctor-set) status on edit.
+     if(!item&&resource==='appointments'&&user.role==='patient') body.status='Requested';
      const saved=item?await crud.update(resource,item.id,body):await crud.create(resource,body);
      onSaved(saved);
    }catch(e){setErr(e.message); setBusy(false)}

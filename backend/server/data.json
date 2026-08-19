@@ -1,167 +1,887 @@
 {
   "users": [
     {
-      "id": "u-ap-admin",
+      "id": "ADM1001",
       "username": "apollo.admin",
       "password": "Admin@12345",
       "role": "admin",
-      "tenantId": "hospital-apollo",
+      "tenantId": "HOSP1001",
       "name": "Dr. Amelia Carter",
       "email": "admin@apollocare.test"
     },
     {
-      "id": "u-ap-doc",
-      "username": "apollo.doctor",
-      "password": "Doctor@12345",
-      "role": "doctor",
-      "tenantId": "hospital-apollo",
-      "name": "Dr. Arjun Rao",
-      "email": "arjun@apollocare.test"
-    },
-    {
-      "id": "u-ap-pat",
-      "username": "apollo.patient",
-      "password": "Patient@12345",
-      "role": "patient",
-      "tenantId": "hospital-apollo",
-      "name": "Maya Singh",
-      "email": "maya@apollocare.test"
-    },
-    {
-      "id": "u-ap-pat2",
-      "username": "apollo.patient2",
-      "password": "Patient@12345",
-      "role": "patient",
-      "tenantId": "hospital-apollo",
-      "name": "Daniel Thomas",
-      "email": "daniel@apollocare.test"
-    },
-    {
-      "id": "u-sun-admin",
+      "id": "ADM1002",
       "username": "sunrise.admin",
       "password": "Admin@12345",
       "role": "admin",
-      "tenantId": "hospital-sunrise",
+      "tenantId": "HOSP1002",
       "name": "Dr. Sarah Wilson",
       "email": "admin@sunrise.test"
     },
     {
-      "id": "u-sun-doc",
+      "id": "DOC1001",
+      "username": "apollo.doctor",
+      "password": "Doctor@12345",
+      "role": "doctor",
+      "tenantId": "HOSP1001",
+      "name": "Dr. Arjun Rao",
+      "email": "arjun@apollocare.test"
+    },
+    {
+      "id": "DOC1002",
       "username": "sunrise.doctor",
       "password": "Doctor@12345",
       "role": "doctor",
-      "tenantId": "hospital-sunrise",
+      "tenantId": "HOSP1002",
       "name": "Dr. Neha Kapoor",
       "email": "neha@sunrise.test"
     },
     {
-      "id": "u-sun-pat",
+      "id": "PAT1001",
+      "username": "apollo.patient",
+      "password": "Patient@12345",
+      "role": "patient",
+      "tenantId": "HOSP1001",
+      "name": "Maya Singh",
+      "email": "maya@apollocare.test"
+    },
+    {
+      "id": "PAT1026",
       "username": "sunrise.patient",
       "password": "Patient@12345",
       "role": "patient",
-      "tenantId": "hospital-sunrise",
+      "tenantId": "HOSP1002",
       "name": "Owen Miller",
       "email": "owen@sunrise.test"
-    },
-    {
-      "id": "u-sun-pat2",
-      "username": "sunrise.patient2",
-      "password": "Patient@12345",
-      "role": "patient",
-      "tenantId": "hospital-sunrise",
-      "name": "Priya Shah",
-      "email": "priya@sunrise.test"
     }
   ],
   "hospitals": [
     {
-      "id": "hospital-apollo",
+      "id": "HOSP1001",
       "name": "Apollo Care Hospital",
       "city": "Hyderabad",
       "specialties": [
         "Cardiology",
         "General Medicine",
         "Dermatology"
+      ],
+      "owner": "Apollo Health Group Pvt Ltd",
+      "registeredOn": "2004-06-15",
+      "taxNumber": "GSTIN-36AABCA1234F1Z5",
+      "licenseNo": "HOSP-TS-4471",
+      "finances": {
+        "currency": "INR",
+        "annualRevenue": 4820000000,
+        "netProfit": 612000000,
+        "outstandingDebt": 1450000000,
+        "lastAuditDate": "2026-03-31",
+        "auditor": "Kohli & Associates LLP"
+      },
+      "pendingLawsuits": [
+        {
+          "caseNo": "HC-HYD-2025-0912",
+          "court": "Telangana High Court",
+          "plaintiff": "Estate of R. Menon",
+          "claim": "Alleged surgical negligence",
+          "amountClaimed": 35000000,
+          "status": "Discovery",
+          "filed": "2025-11-02"
+        },
+        {
+          "caseNo": "CC-HYD-2026-0143",
+          "court": "Consumer Court, Hyderabad",
+          "plaintiff": "S. Fernandes",
+          "claim": "Billing dispute and overcharging",
+          "amountClaimed": 1800000,
+          "status": "Awaiting hearing",
+          "filed": "2026-02-18"
+        }
       ]
     },
     {
-      "id": "hospital-sunrise",
+      "id": "HOSP1002",
       "name": "Sunrise Medical Center",
       "city": "Bengaluru",
       "specialties": [
         "Neurology",
         "Pediatrics",
         "General Medicine"
+      ],
+      "owner": "Sunrise Care Holdings",
+      "registeredOn": "2009-01-22",
+      "taxNumber": "GSTIN-29AACCS9876K1Z3",
+      "licenseNo": "HOSP-KA-8823",
+      "finances": {
+        "currency": "INR",
+        "annualRevenue": 3110000000,
+        "netProfit": 288000000,
+        "outstandingDebt": 2020000000,
+        "lastAuditDate": "2026-03-31",
+        "auditor": "Prakash Rao & Co."
+      },
+      "pendingLawsuits": [
+        {
+          "caseNo": "HC-BLR-2025-1177",
+          "court": "Karnataka High Court",
+          "plaintiff": "A. Kulkarni",
+          "claim": "Wrongful data disclosure",
+          "amountClaimed": 12000000,
+          "status": "Mediation",
+          "filed": "2025-09-30"
+        },
+        {
+          "caseNo": "LC-BLR-2026-0067",
+          "court": "Labour Court, Bengaluru",
+          "plaintiff": "Nursing Staff Union",
+          "claim": "Unpaid overtime wages",
+          "amountClaimed": 4600000,
+          "status": "Filed",
+          "filed": "2026-01-14"
+        },
+        {
+          "caseNo": "CC-BLR-2026-0301",
+          "court": "Consumer Court, Bengaluru",
+          "plaintiff": "M. Iqbal",
+          "claim": "Delayed diagnosis",
+          "amountClaimed": 9000000,
+          "status": "Awaiting hearing",
+          "filed": "2026-04-05"
+        }
       ]
     }
   ],
   "patients": [
     {
-      "id": "p-ap-1",
-      "userId": "u-ap-pat",
-      "tenantId": "hospital-apollo",
+      "id": "PAT1001",
+      "userId": "PAT1001",
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
       "name": "Maya Singh",
-      "dob": "1993-04-12",
+      "gender": "Male",
+      "dob": "1955-01-01",
       "bloodGroup": "O+",
-      "phone": "+91 90000 10001",
+      "phone": "+91 9100000000",
       "conditions": [
-        "Hypertension"
-      ],
-      "doctorId": "u-ap-doc"
+        "Hypertension",
+        "Anemia"
+      ]
     },
     {
-      "id": "p-ap-2",
-      "userId": "u-ap-pat2",
-      "tenantId": "hospital-apollo",
-      "name": "Daniel Thomas",
-      "dob": "1987-11-03",
-      "bloodGroup": "B+",
-      "phone": "+91 90000 10002",
+      "id": "PAT1002",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Daniel Shah",
+      "gender": "Female",
+      "dob": "1962-02-06",
+      "bloodGroup": "O-",
+      "phone": "+91 9100000013",
       "conditions": [
         "Asthma"
-      ],
-      "doctorId": "u-ap-doc"
+      ]
     },
     {
-      "id": "p-su-1",
-      "userId": "u-sun-pat",
-      "tenantId": "hospital-sunrise",
-      "name": "Owen Miller",
-      "dob": "1990-08-20",
+      "id": "PAT1003",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Owen Nair",
+      "gender": "Male",
+      "dob": "1969-03-11",
       "bloodGroup": "A+",
-      "phone": "+91 90000 20001",
-      "conditions": [
-        "Migraine"
-      ],
-      "doctorId": "u-sun-doc"
-    },
-    {
-      "id": "p-su-2",
-      "userId": "u-sun-pat2",
-      "tenantId": "hospital-sunrise",
-      "name": "Priya Shah",
-      "dob": "1995-02-16",
-      "bloodGroup": "AB+",
-      "phone": "+91 90000 20002",
+      "phone": "+91 9100000027",
       "conditions": [
         "Diabetes"
-      ],
-      "doctorId": "u-sun-doc"
+      ]
+    },
+    {
+      "id": "PAT1004",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Priya Gupta",
+      "gender": "Female",
+      "dob": "1976-04-16",
+      "bloodGroup": "A-",
+      "phone": "+91 9100000041",
+      "conditions": [
+        "Migraine",
+        "GERD"
+      ]
+    },
+    {
+      "id": "PAT1005",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Aarav Bose",
+      "gender": "Male",
+      "dob": "1983-05-21",
+      "bloodGroup": "B+",
+      "phone": "+91 9100000054",
+      "conditions": [
+        "Arthritis"
+      ]
+    },
+    {
+      "id": "PAT1006",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Isha Das",
+      "gender": "Female",
+      "dob": "1990-06-26",
+      "bloodGroup": "B-",
+      "phone": "+91 9100000068",
+      "conditions": [
+        "Anemia"
+      ]
+    },
+    {
+      "id": "PAT1007",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Rohan Sharma",
+      "gender": "Male",
+      "dob": "1997-07-04",
+      "bloodGroup": "AB+",
+      "phone": "+91 9100000082",
+      "conditions": [
+        "Thyroid disorder",
+        "Chronic back pain"
+      ]
+    },
+    {
+      "id": "PAT1008",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Sara Thomas",
+      "gender": "Female",
+      "dob": "2004-08-09",
+      "bloodGroup": "AB-",
+      "phone": "+91 9100000095",
+      "conditions": [
+        "Allergic rhinitis"
+      ]
+    },
+    {
+      "id": "PAT1009",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Vikram Kapoor",
+      "gender": "Male",
+      "dob": "1961-09-14",
+      "bloodGroup": "O+",
+      "phone": "+91 9100000109",
+      "conditions": [
+        "GERD"
+      ]
+    },
+    {
+      "id": "PAT1010",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Anita Iyer",
+      "gender": "Female",
+      "dob": "1968-10-19",
+      "bloodGroup": "O-",
+      "phone": "+91 9100000123",
+      "conditions": [
+        "High cholesterol",
+        "Diabetes"
+      ]
+    },
+    {
+      "id": "PAT1011",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Kabir Reddy",
+      "gender": "Male",
+      "dob": "1975-11-24",
+      "bloodGroup": "A+",
+      "phone": "+91 9100000137",
+      "conditions": [
+        "Anxiety"
+      ]
+    },
+    {
+      "id": "PAT1012",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Neha Chopra",
+      "gender": "Female",
+      "dob": "1982-12-02",
+      "bloodGroup": "A-",
+      "phone": "+91 9100000150",
+      "conditions": [
+        "Chronic back pain"
+      ]
+    },
+    {
+      "id": "PAT1013",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Arjun Joshi",
+      "gender": "Male",
+      "dob": "1989-01-07",
+      "bloodGroup": "B+",
+      "phone": "+91 9100000164",
+      "conditions": [
+        "Hypertension",
+        "Anemia"
+      ]
+    },
+    {
+      "id": "PAT1014",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Diya Khan",
+      "gender": "Female",
+      "dob": "1996-02-12",
+      "bloodGroup": "B-",
+      "phone": "+91 9100000178",
+      "conditions": [
+        "Asthma"
+      ]
+    },
+    {
+      "id": "PAT1015",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Karan Miller",
+      "gender": "Male",
+      "dob": "2003-03-17",
+      "bloodGroup": "AB+",
+      "phone": "+91 9100000191",
+      "conditions": [
+        "Diabetes"
+      ]
+    },
+    {
+      "id": "PAT1016",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Meera Rao",
+      "gender": "Female",
+      "dob": "1960-04-22",
+      "bloodGroup": "AB-",
+      "phone": "+91 9100000205",
+      "conditions": [
+        "Migraine",
+        "GERD"
+      ]
+    },
+    {
+      "id": "PAT1017",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Nikhil Verma",
+      "gender": "Male",
+      "dob": "1967-05-27",
+      "bloodGroup": "O+",
+      "phone": "+91 9100000219",
+      "conditions": [
+        "Arthritis"
+      ]
+    },
+    {
+      "id": "PAT1018",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Tara Menon",
+      "gender": "Female",
+      "dob": "1974-06-05",
+      "bloodGroup": "O-",
+      "phone": "+91 9100000232",
+      "conditions": [
+        "Anemia"
+      ]
+    },
+    {
+      "id": "PAT1019",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Aditya Malhotra",
+      "gender": "Male",
+      "dob": "1981-07-10",
+      "bloodGroup": "A+",
+      "phone": "+91 9100000246",
+      "conditions": [
+        "Thyroid disorder",
+        "Chronic back pain"
+      ]
+    },
+    {
+      "id": "PAT1020",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Riya Pillai",
+      "gender": "Female",
+      "dob": "1988-08-15",
+      "bloodGroup": "A-",
+      "phone": "+91 9100000260",
+      "conditions": [
+        "Allergic rhinitis"
+      ]
+    },
+    {
+      "id": "PAT1021",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Sameer Singh",
+      "gender": "Male",
+      "dob": "1995-09-20",
+      "bloodGroup": "B+",
+      "phone": "+91 9100000274",
+      "conditions": [
+        "GERD"
+      ]
+    },
+    {
+      "id": "PAT1022",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Pooja Shah",
+      "gender": "Female",
+      "dob": "2002-10-25",
+      "bloodGroup": "B-",
+      "phone": "+91 9100000287",
+      "conditions": [
+        "High cholesterol",
+        "Diabetes"
+      ]
+    },
+    {
+      "id": "PAT1023",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Varun Nair",
+      "gender": "Male",
+      "dob": "1959-11-03",
+      "bloodGroup": "AB+",
+      "phone": "+91 9100000301",
+      "conditions": [
+        "Anxiety"
+      ]
+    },
+    {
+      "id": "PAT1024",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Anjali Gupta",
+      "gender": "Female",
+      "dob": "1966-12-08",
+      "bloodGroup": "AB-",
+      "phone": "+91 9100000315",
+      "conditions": [
+        "Chronic back pain"
+      ]
+    },
+    {
+      "id": "PAT1025",
+      "userId": null,
+      "tenantId": "HOSP1001",
+      "doctorId": "DOC1001",
+      "name": "Rahul Bose",
+      "gender": "Male",
+      "dob": "1973-01-13",
+      "bloodGroup": "O+",
+      "phone": "+91 9100000328",
+      "conditions": [
+        "Hypertension",
+        "Anemia"
+      ]
+    },
+    {
+      "id": "PAT1026",
+      "userId": "PAT1026",
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Owen Miller",
+      "gender": "Female",
+      "dob": "1980-02-18",
+      "bloodGroup": "O-",
+      "phone": "+91 9100000342",
+      "conditions": [
+        "Asthma"
+      ]
+    },
+    {
+      "id": "PAT1027",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Aryan Sharma",
+      "gender": "Male",
+      "dob": "1987-03-23",
+      "bloodGroup": "A+",
+      "phone": "+91 9100000356",
+      "conditions": [
+        "Diabetes"
+      ]
+    },
+    {
+      "id": "PAT1028",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Kavya Thomas",
+      "gender": "Female",
+      "dob": "1994-04-01",
+      "bloodGroup": "A-",
+      "phone": "+91 9100000369",
+      "conditions": [
+        "Migraine",
+        "GERD"
+      ]
+    },
+    {
+      "id": "PAT1029",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Manav Kapoor",
+      "gender": "Male",
+      "dob": "2001-05-06",
+      "bloodGroup": "B+",
+      "phone": "+91 9100000383",
+      "conditions": [
+        "Arthritis"
+      ]
+    },
+    {
+      "id": "PAT1030",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Ira Iyer",
+      "gender": "Female",
+      "dob": "1958-06-11",
+      "bloodGroup": "B-",
+      "phone": "+91 9100000397",
+      "conditions": [
+        "Anemia"
+      ]
+    },
+    {
+      "id": "PAT1031",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Dev Reddy",
+      "gender": "Male",
+      "dob": "1965-07-16",
+      "bloodGroup": "AB+",
+      "phone": "+91 9100000411",
+      "conditions": [
+        "Thyroid disorder",
+        "Chronic back pain"
+      ]
+    },
+    {
+      "id": "PAT1032",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Nisha Chopra",
+      "gender": "Female",
+      "dob": "1972-08-21",
+      "bloodGroup": "AB-",
+      "phone": "+91 9100000424",
+      "conditions": [
+        "Allergic rhinitis"
+      ]
+    },
+    {
+      "id": "PAT1033",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Yash Joshi",
+      "gender": "Male",
+      "dob": "1979-09-26",
+      "bloodGroup": "O+",
+      "phone": "+91 9100000438",
+      "conditions": [
+        "GERD"
+      ]
+    },
+    {
+      "id": "PAT1034",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Simran Khan",
+      "gender": "Female",
+      "dob": "1986-10-04",
+      "bloodGroup": "O-",
+      "phone": "+91 9100000452",
+      "conditions": [
+        "High cholesterol",
+        "Diabetes"
+      ]
+    },
+    {
+      "id": "PAT1035",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Kunal Miller",
+      "gender": "Male",
+      "dob": "1993-11-09",
+      "bloodGroup": "A+",
+      "phone": "+91 9100000465",
+      "conditions": [
+        "Anxiety"
+      ]
+    },
+    {
+      "id": "PAT1036",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Ritu Rao",
+      "gender": "Female",
+      "dob": "2000-12-14",
+      "bloodGroup": "A-",
+      "phone": "+91 9100000479",
+      "conditions": [
+        "Chronic back pain"
+      ]
+    },
+    {
+      "id": "PAT1037",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Aman Verma",
+      "gender": "Male",
+      "dob": "1957-01-19",
+      "bloodGroup": "B+",
+      "phone": "+91 9100000493",
+      "conditions": [
+        "Hypertension",
+        "Anemia"
+      ]
+    },
+    {
+      "id": "PAT1038",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Leela Menon",
+      "gender": "Female",
+      "dob": "1964-02-24",
+      "bloodGroup": "B-",
+      "phone": "+91 9100000506",
+      "conditions": [
+        "Asthma"
+      ]
+    },
+    {
+      "id": "PAT1039",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Farhan Malhotra",
+      "gender": "Male",
+      "dob": "1971-03-02",
+      "bloodGroup": "AB+",
+      "phone": "+91 9100000520",
+      "conditions": [
+        "Diabetes"
+      ]
+    },
+    {
+      "id": "PAT1040",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Zoya Pillai",
+      "gender": "Female",
+      "dob": "1978-04-07",
+      "bloodGroup": "AB-",
+      "phone": "+91 9100000534",
+      "conditions": [
+        "Migraine",
+        "GERD"
+      ]
+    },
+    {
+      "id": "PAT1041",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Gaurav Singh",
+      "gender": "Male",
+      "dob": "1985-05-12",
+      "bloodGroup": "O+",
+      "phone": "+91 9100000548",
+      "conditions": [
+        "Arthritis"
+      ]
+    },
+    {
+      "id": "PAT1042",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Trisha Shah",
+      "gender": "Female",
+      "dob": "1992-06-17",
+      "bloodGroup": "O-",
+      "phone": "+91 9100000561",
+      "conditions": [
+        "Anemia"
+      ]
+    },
+    {
+      "id": "PAT1043",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Harsh Nair",
+      "gender": "Male",
+      "dob": "1999-07-22",
+      "bloodGroup": "A+",
+      "phone": "+91 9100000575",
+      "conditions": [
+        "Thyroid disorder",
+        "Chronic back pain"
+      ]
+    },
+    {
+      "id": "PAT1044",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Bela Gupta",
+      "gender": "Female",
+      "dob": "1956-08-27",
+      "bloodGroup": "A-",
+      "phone": "+91 9100000589",
+      "conditions": [
+        "Allergic rhinitis"
+      ]
+    },
+    {
+      "id": "PAT1045",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Omar Bose",
+      "gender": "Male",
+      "dob": "1963-09-05",
+      "bloodGroup": "B+",
+      "phone": "+91 9100000602",
+      "conditions": [
+        "GERD"
+      ]
+    },
+    {
+      "id": "PAT1046",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Naina Das",
+      "gender": "Female",
+      "dob": "1970-10-10",
+      "bloodGroup": "B-",
+      "phone": "+91 9100000616",
+      "conditions": [
+        "High cholesterol",
+        "Diabetes"
+      ]
+    },
+    {
+      "id": "PAT1047",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Vivek Sharma",
+      "gender": "Male",
+      "dob": "1977-11-15",
+      "bloodGroup": "AB+",
+      "phone": "+91 9100000630",
+      "conditions": [
+        "Anxiety"
+      ]
+    },
+    {
+      "id": "PAT1048",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Sana Thomas",
+      "gender": "Female",
+      "dob": "1984-12-20",
+      "bloodGroup": "AB-",
+      "phone": "+91 9100000643",
+      "conditions": [
+        "Chronic back pain"
+      ]
+    },
+    {
+      "id": "PAT1049",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Rehan Kapoor",
+      "gender": "Male",
+      "dob": "1991-01-25",
+      "bloodGroup": "O+",
+      "phone": "+91 9100000657",
+      "conditions": [
+        "Hypertension",
+        "Anemia"
+      ]
+    },
+    {
+      "id": "PAT1050",
+      "userId": null,
+      "tenantId": "HOSP1002",
+      "doctorId": "DOC1002",
+      "name": "Divya Iyer",
+      "gender": "Female",
+      "dob": "1998-02-03",
+      "bloodGroup": "O-",
+      "phone": "+91 9100000671",
+      "conditions": [
+        "Asthma"
+      ]
     }
   ],
   "doctors": [
     {
-      "id": "d-ap-1",
-      "userId": "u-ap-doc",
-      "tenantId": "hospital-apollo",
+      "id": "DOC1001",
+      "userId": "DOC1001",
+      "tenantId": "HOSP1001",
       "name": "Dr. Arjun Rao",
       "specialty": "Cardiology",
       "license": "MED-AP-1001"
     },
     {
-      "id": "d-su-1",
-      "userId": "u-sun-doc",
-      "tenantId": "hospital-sunrise",
+      "id": "DOC1002",
+      "userId": "DOC1002",
+      "tenantId": "HOSP1002",
       "name": "Dr. Neha Kapoor",
       "specialty": "Neurology",
       "license": "MED-SU-2001"
@@ -169,95 +889,1793 @@
   ],
   "appointments": [
     {
-      "id": "a-ap-1",
-      "tenantId": "hospital-apollo",
-      "patientId": "p-ap-1",
-      "doctorId": "u-ap-doc",
-      "date": "2026-08-18",
-      "time": "10:30",
+      "id": 1000,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1001",
+      "doctorId": "DOC1001",
+      "date": "2026-01-01",
+      "time": "09:00",
       "status": "Confirmed",
       "reason": "Blood pressure review"
     },
     {
-      "id": "a-ap-2",
-      "tenantId": "hospital-apollo",
-      "patientId": "p-ap-2",
-      "doctorId": "u-ap-doc",
-      "date": "2026-08-19",
-      "time": "14:00",
+      "id": 1001,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1002",
+      "doctorId": "DOC1001",
+      "date": "2026-03-02",
+      "time": "10:30",
       "status": "Requested",
-      "reason": "Asthma follow-up"
+      "reason": "Follow-up consultation"
     },
     {
-      "id": "a-su-1",
-      "tenantId": "hospital-sunrise",
-      "patientId": "p-su-1",
-      "doctorId": "u-sun-doc",
-      "date": "2026-08-18",
+      "id": 1002,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1003",
+      "doctorId": "DOC1001",
+      "date": "2026-05-03",
+      "time": "11:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1003,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1004",
+      "doctorId": "DOC1001",
+      "date": "2026-07-04",
+      "time": "12:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1004,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1005",
+      "doctorId": "DOC1001",
+      "date": "2026-09-05",
+      "time": "13:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1005,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1006",
+      "doctorId": "DOC1001",
+      "date": "2026-11-06",
+      "time": "14:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1006,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1007",
+      "doctorId": "DOC1001",
+      "date": "2026-01-07",
+      "time": "15:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1007,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1008",
+      "doctorId": "DOC1001",
+      "date": "2026-03-08",
+      "time": "16:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1008,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1009",
+      "doctorId": "DOC1001",
+      "date": "2026-05-09",
+      "time": "09:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1009,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1010",
+      "doctorId": "DOC1001",
+      "date": "2026-07-10",
+      "time": "10:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
+    },
+    {
+      "id": 1010,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1011",
+      "doctorId": "DOC1001",
+      "date": "2026-09-11",
+      "time": "11:00",
+      "status": "Confirmed",
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": 1011,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1012",
+      "doctorId": "DOC1001",
+      "date": "2026-11-12",
+      "time": "12:30",
+      "status": "Requested",
+      "reason": "Follow-up consultation"
+    },
+    {
+      "id": 1012,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1013",
+      "doctorId": "DOC1001",
+      "date": "2026-01-13",
+      "time": "13:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1013,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1014",
+      "doctorId": "DOC1001",
+      "date": "2026-03-14",
+      "time": "14:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1014,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1015",
+      "doctorId": "DOC1001",
+      "date": "2026-05-15",
+      "time": "15:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1015,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1016",
+      "doctorId": "DOC1001",
+      "date": "2026-07-16",
+      "time": "16:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1016,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1017",
+      "doctorId": "DOC1001",
+      "date": "2026-09-17",
+      "time": "09:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1017,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1018",
+      "doctorId": "DOC1001",
+      "date": "2026-11-18",
+      "time": "10:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1018,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1019",
+      "doctorId": "DOC1001",
+      "date": "2026-01-19",
+      "time": "11:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1019,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1020",
+      "doctorId": "DOC1001",
+      "date": "2026-03-20",
+      "time": "12:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
+    },
+    {
+      "id": 1020,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1021",
+      "doctorId": "DOC1001",
+      "date": "2026-05-21",
+      "time": "13:00",
+      "status": "Confirmed",
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": 1021,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1022",
+      "doctorId": "DOC1001",
+      "date": "2026-07-22",
+      "time": "14:30",
+      "status": "Requested",
+      "reason": "Follow-up consultation"
+    },
+    {
+      "id": 1022,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1023",
+      "doctorId": "DOC1001",
+      "date": "2026-09-23",
+      "time": "15:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1023,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1024",
+      "doctorId": "DOC1001",
+      "date": "2026-11-24",
+      "time": "16:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1024,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1025",
+      "doctorId": "DOC1001",
+      "date": "2026-01-25",
+      "time": "09:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1025,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1001",
+      "doctorId": "DOC1001",
+      "date": "2026-03-26",
+      "time": "10:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1026,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1002",
+      "doctorId": "DOC1001",
+      "date": "2026-05-27",
+      "time": "11:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1027,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1003",
+      "doctorId": "DOC1001",
+      "date": "2026-07-01",
+      "time": "12:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1028,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1004",
+      "doctorId": "DOC1001",
+      "date": "2026-09-02",
+      "time": "13:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1029,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1005",
+      "doctorId": "DOC1001",
+      "date": "2026-11-03",
+      "time": "14:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
+    },
+    {
+      "id": 1030,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1006",
+      "doctorId": "DOC1001",
+      "date": "2026-01-04",
+      "time": "15:00",
+      "status": "Confirmed",
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": 1031,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1007",
+      "doctorId": "DOC1001",
+      "date": "2026-03-05",
+      "time": "16:30",
+      "status": "Requested",
+      "reason": "Follow-up consultation"
+    },
+    {
+      "id": 1032,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1008",
+      "doctorId": "DOC1001",
+      "date": "2026-05-06",
+      "time": "09:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1033,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1009",
+      "doctorId": "DOC1001",
+      "date": "2026-07-07",
+      "time": "10:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1034,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1010",
+      "doctorId": "DOC1001",
+      "date": "2026-09-08",
+      "time": "11:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1035,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1011",
+      "doctorId": "DOC1001",
+      "date": "2026-11-09",
+      "time": "12:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1036,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1012",
+      "doctorId": "DOC1001",
+      "date": "2026-01-10",
+      "time": "13:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1037,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1013",
+      "doctorId": "DOC1001",
+      "date": "2026-03-11",
+      "time": "14:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1038,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1014",
+      "doctorId": "DOC1001",
+      "date": "2026-05-12",
+      "time": "15:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1039,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1015",
+      "doctorId": "DOC1001",
+      "date": "2026-07-13",
+      "time": "16:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
+    },
+    {
+      "id": 1040,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1016",
+      "doctorId": "DOC1001",
+      "date": "2026-09-14",
       "time": "09:00",
       "status": "Confirmed",
-      "reason": "Migraine consultation"
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": 1041,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1017",
+      "doctorId": "DOC1001",
+      "date": "2026-11-15",
+      "time": "10:30",
+      "status": "Requested",
+      "reason": "Follow-up consultation"
+    },
+    {
+      "id": 1042,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1018",
+      "doctorId": "DOC1001",
+      "date": "2026-01-16",
+      "time": "11:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1043,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1019",
+      "doctorId": "DOC1001",
+      "date": "2026-03-17",
+      "time": "12:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1044,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1020",
+      "doctorId": "DOC1001",
+      "date": "2026-05-18",
+      "time": "13:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1045,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1021",
+      "doctorId": "DOC1001",
+      "date": "2026-07-19",
+      "time": "14:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1046,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1022",
+      "doctorId": "DOC1001",
+      "date": "2026-09-20",
+      "time": "15:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1047,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1023",
+      "doctorId": "DOC1001",
+      "date": "2026-11-21",
+      "time": "16:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1048,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1024",
+      "doctorId": "DOC1001",
+      "date": "2026-01-22",
+      "time": "09:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1049,
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1025",
+      "doctorId": "DOC1001",
+      "date": "2026-03-23",
+      "time": "10:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
+    },
+    {
+      "id": 1050,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1026",
+      "doctorId": "DOC1002",
+      "date": "2026-01-01",
+      "time": "09:00",
+      "status": "Confirmed",
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": 1051,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1027",
+      "doctorId": "DOC1002",
+      "date": "2026-03-02",
+      "time": "10:30",
+      "status": "Requested",
+      "reason": "Follow-up consultation"
+    },
+    {
+      "id": 1052,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1028",
+      "doctorId": "DOC1002",
+      "date": "2026-05-03",
+      "time": "11:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1053,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1029",
+      "doctorId": "DOC1002",
+      "date": "2026-07-04",
+      "time": "12:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1054,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1030",
+      "doctorId": "DOC1002",
+      "date": "2026-09-05",
+      "time": "13:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1055,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1031",
+      "doctorId": "DOC1002",
+      "date": "2026-11-06",
+      "time": "14:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1056,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1032",
+      "doctorId": "DOC1002",
+      "date": "2026-01-07",
+      "time": "15:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1057,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1033",
+      "doctorId": "DOC1002",
+      "date": "2026-03-08",
+      "time": "16:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1058,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1034",
+      "doctorId": "DOC1002",
+      "date": "2026-05-09",
+      "time": "09:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1059,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1035",
+      "doctorId": "DOC1002",
+      "date": "2026-07-10",
+      "time": "10:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
+    },
+    {
+      "id": 1060,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1036",
+      "doctorId": "DOC1002",
+      "date": "2026-09-11",
+      "time": "11:00",
+      "status": "Confirmed",
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": 1061,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1037",
+      "doctorId": "DOC1002",
+      "date": "2026-11-12",
+      "time": "12:30",
+      "status": "Requested",
+      "reason": "Follow-up consultation"
+    },
+    {
+      "id": 1062,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1038",
+      "doctorId": "DOC1002",
+      "date": "2026-01-13",
+      "time": "13:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1063,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1039",
+      "doctorId": "DOC1002",
+      "date": "2026-03-14",
+      "time": "14:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1064,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1040",
+      "doctorId": "DOC1002",
+      "date": "2026-05-15",
+      "time": "15:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1065,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1041",
+      "doctorId": "DOC1002",
+      "date": "2026-07-16",
+      "time": "16:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1066,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1042",
+      "doctorId": "DOC1002",
+      "date": "2026-09-17",
+      "time": "09:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1067,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1043",
+      "doctorId": "DOC1002",
+      "date": "2026-11-18",
+      "time": "10:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1068,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1044",
+      "doctorId": "DOC1002",
+      "date": "2026-01-19",
+      "time": "11:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1069,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1045",
+      "doctorId": "DOC1002",
+      "date": "2026-03-20",
+      "time": "12:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
+    },
+    {
+      "id": 1070,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1046",
+      "doctorId": "DOC1002",
+      "date": "2026-05-21",
+      "time": "13:00",
+      "status": "Confirmed",
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": 1071,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1047",
+      "doctorId": "DOC1002",
+      "date": "2026-07-22",
+      "time": "14:30",
+      "status": "Requested",
+      "reason": "Follow-up consultation"
+    },
+    {
+      "id": 1072,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1048",
+      "doctorId": "DOC1002",
+      "date": "2026-09-23",
+      "time": "15:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1073,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1049",
+      "doctorId": "DOC1002",
+      "date": "2026-11-24",
+      "time": "16:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1074,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1050",
+      "doctorId": "DOC1002",
+      "date": "2026-01-25",
+      "time": "09:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1075,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1026",
+      "doctorId": "DOC1002",
+      "date": "2026-03-26",
+      "time": "10:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1076,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1027",
+      "doctorId": "DOC1002",
+      "date": "2026-05-27",
+      "time": "11:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1077,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1028",
+      "doctorId": "DOC1002",
+      "date": "2026-07-01",
+      "time": "12:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1078,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1029",
+      "doctorId": "DOC1002",
+      "date": "2026-09-02",
+      "time": "13:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1079,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1030",
+      "doctorId": "DOC1002",
+      "date": "2026-11-03",
+      "time": "14:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
+    },
+    {
+      "id": 1080,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1031",
+      "doctorId": "DOC1002",
+      "date": "2026-01-04",
+      "time": "15:00",
+      "status": "Confirmed",
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": 1081,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1032",
+      "doctorId": "DOC1002",
+      "date": "2026-03-05",
+      "time": "16:30",
+      "status": "Requested",
+      "reason": "Follow-up consultation"
+    },
+    {
+      "id": 1082,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1033",
+      "doctorId": "DOC1002",
+      "date": "2026-05-06",
+      "time": "09:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1083,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1034",
+      "doctorId": "DOC1002",
+      "date": "2026-07-07",
+      "time": "10:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1084,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1035",
+      "doctorId": "DOC1002",
+      "date": "2026-09-08",
+      "time": "11:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1085,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1036",
+      "doctorId": "DOC1002",
+      "date": "2026-11-09",
+      "time": "12:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1086,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1037",
+      "doctorId": "DOC1002",
+      "date": "2026-01-10",
+      "time": "13:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1087,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1038",
+      "doctorId": "DOC1002",
+      "date": "2026-03-11",
+      "time": "14:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1088,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1039",
+      "doctorId": "DOC1002",
+      "date": "2026-05-12",
+      "time": "15:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1089,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1040",
+      "doctorId": "DOC1002",
+      "date": "2026-07-13",
+      "time": "16:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
+    },
+    {
+      "id": 1090,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1041",
+      "doctorId": "DOC1002",
+      "date": "2026-09-14",
+      "time": "09:00",
+      "status": "Confirmed",
+      "reason": "Blood pressure review"
+    },
+    {
+      "id": 1091,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1042",
+      "doctorId": "DOC1002",
+      "date": "2026-11-15",
+      "time": "10:30",
+      "status": "Requested",
+      "reason": "Follow-up consultation"
+    },
+    {
+      "id": 1092,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1043",
+      "doctorId": "DOC1002",
+      "date": "2026-01-16",
+      "time": "11:00",
+      "status": "Completed",
+      "reason": "Routine check-up"
+    },
+    {
+      "id": 1093,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1044",
+      "doctorId": "DOC1002",
+      "date": "2026-03-17",
+      "time": "12:30",
+      "status": "Cancelled",
+      "reason": "Lab results discussion"
+    },
+    {
+      "id": 1094,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1045",
+      "doctorId": "DOC1002",
+      "date": "2026-05-18",
+      "time": "13:00",
+      "status": "Rescheduled",
+      "reason": "Medication adjustment"
+    },
+    {
+      "id": 1095,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1046",
+      "doctorId": "DOC1002",
+      "date": "2026-07-19",
+      "time": "14:30",
+      "status": "Confirmed",
+      "reason": "New symptom evaluation"
+    },
+    {
+      "id": 1096,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1047",
+      "doctorId": "DOC1002",
+      "date": "2026-09-20",
+      "time": "15:00",
+      "status": "Requested",
+      "reason": "Post-op review"
+    },
+    {
+      "id": 1097,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1048",
+      "doctorId": "DOC1002",
+      "date": "2026-11-21",
+      "time": "16:30",
+      "status": "Completed",
+      "reason": "Vaccination"
+    },
+    {
+      "id": 1098,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1049",
+      "doctorId": "DOC1002",
+      "date": "2026-01-22",
+      "time": "09:00",
+      "status": "Cancelled",
+      "reason": "Chronic care review"
+    },
+    {
+      "id": 1099,
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1050",
+      "doctorId": "DOC1002",
+      "date": "2026-03-23",
+      "time": "10:30",
+      "status": "Rescheduled",
+      "reason": "Second opinion"
     }
   ],
   "reports": [
     {
-      "id": "r-ap-1",
-      "tenantId": "hospital-apollo",
-      "patientId": "p-ap-1",
+      "id": "RPT1001",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1001",
       "type": "Blood Test",
       "title": "Annual Blood Panel",
       "summary": "CBC and metabolic panel within expected ranges.",
-      "uploadedAt": "2026-08-10"
+      "uploadedAt": "2026-01-01"
     },
     {
-      "id": "r-su-1",
-      "tenantId": "hospital-sunrise",
-      "patientId": "p-su-1",
-      "type": "MRI",
-      "title": "Head MRI",
-      "summary": "No acute abnormality noted.",
-      "uploadedAt": "2026-08-11"
+      "id": "RPT1002",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1003",
+      "type": "X-Ray",
+      "title": "Chest X-Ray",
+      "summary": "Clear lung fields, no consolidation.",
+      "uploadedAt": "2026-03-03"
+    },
+    {
+      "id": "RPT1003",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1005",
+      "type": "Ultrasound",
+      "title": "Abdominal USG",
+      "summary": "No focal lesion detected.",
+      "uploadedAt": "2026-05-05"
+    },
+    {
+      "id": "RPT1004",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1007",
+      "type": "Blood Test",
+      "title": "Annual Blood Panel",
+      "summary": "CBC and metabolic panel within expected ranges.",
+      "uploadedAt": "2026-07-07"
+    },
+    {
+      "id": "RPT1005",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1009",
+      "type": "X-Ray",
+      "title": "Chest X-Ray",
+      "summary": "Clear lung fields, no consolidation.",
+      "uploadedAt": "2026-09-09"
+    },
+    {
+      "id": "RPT1006",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1011",
+      "type": "Ultrasound",
+      "title": "Abdominal USG",
+      "summary": "No focal lesion detected.",
+      "uploadedAt": "2026-02-11"
+    },
+    {
+      "id": "RPT1007",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1013",
+      "type": "Blood Test",
+      "title": "Annual Blood Panel",
+      "summary": "CBC and metabolic panel within expected ranges.",
+      "uploadedAt": "2026-04-13"
+    },
+    {
+      "id": "RPT1008",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1015",
+      "type": "X-Ray",
+      "title": "Chest X-Ray",
+      "summary": "Clear lung fields, no consolidation.",
+      "uploadedAt": "2026-06-15"
+    },
+    {
+      "id": "RPT1009",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1017",
+      "type": "Ultrasound",
+      "title": "Abdominal USG",
+      "summary": "No focal lesion detected.",
+      "uploadedAt": "2026-08-17"
+    },
+    {
+      "id": "RPT1010",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1019",
+      "type": "Blood Test",
+      "title": "Annual Blood Panel",
+      "summary": "CBC and metabolic panel within expected ranges.",
+      "uploadedAt": "2026-01-19"
+    },
+    {
+      "id": "RPT1011",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1021",
+      "type": "X-Ray",
+      "title": "Chest X-Ray",
+      "summary": "Clear lung fields, no consolidation.",
+      "uploadedAt": "2026-03-21"
+    },
+    {
+      "id": "RPT1012",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1023",
+      "type": "Ultrasound",
+      "title": "Abdominal USG",
+      "summary": "No focal lesion detected.",
+      "uploadedAt": "2026-05-23"
+    },
+    {
+      "id": "RPT1013",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1025",
+      "type": "Blood Test",
+      "title": "Annual Blood Panel",
+      "summary": "CBC and metabolic panel within expected ranges.",
+      "uploadedAt": "2026-07-25"
+    },
+    {
+      "id": "RPT1014",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1027",
+      "type": "X-Ray",
+      "title": "Chest X-Ray",
+      "summary": "Clear lung fields, no consolidation.",
+      "uploadedAt": "2026-09-27"
+    },
+    {
+      "id": "RPT1015",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1029",
+      "type": "Ultrasound",
+      "title": "Abdominal USG",
+      "summary": "No focal lesion detected.",
+      "uploadedAt": "2026-02-02"
+    },
+    {
+      "id": "RPT1016",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1031",
+      "type": "Blood Test",
+      "title": "Annual Blood Panel",
+      "summary": "CBC and metabolic panel within expected ranges.",
+      "uploadedAt": "2026-04-04"
+    },
+    {
+      "id": "RPT1017",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1033",
+      "type": "X-Ray",
+      "title": "Chest X-Ray",
+      "summary": "Clear lung fields, no consolidation.",
+      "uploadedAt": "2026-06-06"
+    },
+    {
+      "id": "RPT1018",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1035",
+      "type": "Ultrasound",
+      "title": "Abdominal USG",
+      "summary": "No focal lesion detected.",
+      "uploadedAt": "2026-08-08"
+    },
+    {
+      "id": "RPT1019",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1037",
+      "type": "Blood Test",
+      "title": "Annual Blood Panel",
+      "summary": "CBC and metabolic panel within expected ranges.",
+      "uploadedAt": "2026-01-10"
+    },
+    {
+      "id": "RPT1020",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1039",
+      "type": "X-Ray",
+      "title": "Chest X-Ray",
+      "summary": "Clear lung fields, no consolidation.",
+      "uploadedAt": "2026-03-12"
+    },
+    {
+      "id": "RPT1021",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1041",
+      "type": "Ultrasound",
+      "title": "Abdominal USG",
+      "summary": "No focal lesion detected.",
+      "uploadedAt": "2026-05-14"
+    },
+    {
+      "id": "RPT1022",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1043",
+      "type": "Blood Test",
+      "title": "Annual Blood Panel",
+      "summary": "CBC and metabolic panel within expected ranges.",
+      "uploadedAt": "2026-07-16"
+    },
+    {
+      "id": "RPT1023",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1045",
+      "type": "X-Ray",
+      "title": "Chest X-Ray",
+      "summary": "Clear lung fields, no consolidation.",
+      "uploadedAt": "2026-09-18"
+    },
+    {
+      "id": "RPT1024",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1047",
+      "type": "Ultrasound",
+      "title": "Abdominal USG",
+      "summary": "No focal lesion detected.",
+      "uploadedAt": "2026-02-20"
+    },
+    {
+      "id": "RPT1025",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1049",
+      "type": "Blood Test",
+      "title": "Annual Blood Panel",
+      "summary": "CBC and metabolic panel within expected ranges.",
+      "uploadedAt": "2026-04-22"
     }
   ],
   "prescriptions": [
     {
-      "id": "rx-ap-1",
-      "tenantId": "hospital-apollo",
-      "patientId": "p-ap-1",
-      "doctorId": "u-ap-doc",
+      "id": "RX1001",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1001",
+      "doctorId": "DOC1001",
       "medicine": "Amlodipine",
       "dosage": "5 mg",
       "frequency": "Once daily",
       "instructions": "Take after breakfast.",
-      "status": "Active"
+      "status": "Completed"
     },
     {
-      "id": "rx-su-1",
-      "tenantId": "hospital-sunrise",
-      "patientId": "p-su-1",
-      "doctorId": "u-sun-doc",
+      "id": "RX1002",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1002",
+      "doctorId": "DOC1001",
       "medicine": "Sumatriptan",
       "dosage": "50 mg",
       "frequency": "As needed",
       "instructions": "Use at onset of migraine.",
       "status": "Active"
+    },
+    {
+      "id": "RX1003",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1003",
+      "doctorId": "DOC1001",
+      "medicine": "Metformin",
+      "dosage": "500 mg",
+      "frequency": "Twice daily",
+      "instructions": "Take with meals.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1004",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1004",
+      "doctorId": "DOC1001",
+      "medicine": "Salbutamol",
+      "dosage": "100 mcg",
+      "frequency": "As needed",
+      "instructions": "2 puffs during breathlessness.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1005",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1005",
+      "doctorId": "DOC1001",
+      "medicine": "Atorvastatin",
+      "dosage": "10 mg",
+      "frequency": "Once at night",
+      "instructions": "Take after dinner.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1006",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1006",
+      "doctorId": "DOC1001",
+      "medicine": "Levothyroxine",
+      "dosage": "50 mcg",
+      "frequency": "Once daily",
+      "instructions": "Empty stomach, morning.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1007",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1007",
+      "doctorId": "DOC1001",
+      "medicine": "Ibuprofen",
+      "dosage": "400 mg",
+      "frequency": "Thrice daily",
+      "instructions": "Take after food.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1008",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1008",
+      "doctorId": "DOC1001",
+      "medicine": "Omeprazole",
+      "dosage": "20 mg",
+      "frequency": "Once daily",
+      "instructions": "Before breakfast.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1009",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1009",
+      "doctorId": "DOC1001",
+      "medicine": "Amlodipine",
+      "dosage": "5 mg",
+      "frequency": "Once daily",
+      "instructions": "Take after breakfast.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1010",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1011",
+      "doctorId": "DOC1001",
+      "medicine": "Metformin",
+      "dosage": "500 mg",
+      "frequency": "Twice daily",
+      "instructions": "Take with meals.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1011",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1012",
+      "doctorId": "DOC1001",
+      "medicine": "Salbutamol",
+      "dosage": "100 mcg",
+      "frequency": "As needed",
+      "instructions": "2 puffs during breathlessness.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1012",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1013",
+      "doctorId": "DOC1001",
+      "medicine": "Atorvastatin",
+      "dosage": "10 mg",
+      "frequency": "Once at night",
+      "instructions": "Take after dinner.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1013",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1014",
+      "doctorId": "DOC1001",
+      "medicine": "Levothyroxine",
+      "dosage": "50 mcg",
+      "frequency": "Once daily",
+      "instructions": "Empty stomach, morning.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1014",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1015",
+      "doctorId": "DOC1001",
+      "medicine": "Ibuprofen",
+      "dosage": "400 mg",
+      "frequency": "Thrice daily",
+      "instructions": "Take after food.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1015",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1016",
+      "doctorId": "DOC1001",
+      "medicine": "Omeprazole",
+      "dosage": "20 mg",
+      "frequency": "Once daily",
+      "instructions": "Before breakfast.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1016",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1017",
+      "doctorId": "DOC1001",
+      "medicine": "Amlodipine",
+      "dosage": "5 mg",
+      "frequency": "Once daily",
+      "instructions": "Take after breakfast.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1017",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1018",
+      "doctorId": "DOC1001",
+      "medicine": "Sumatriptan",
+      "dosage": "50 mg",
+      "frequency": "As needed",
+      "instructions": "Use at onset of migraine.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1018",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1019",
+      "doctorId": "DOC1001",
+      "medicine": "Metformin",
+      "dosage": "500 mg",
+      "frequency": "Twice daily",
+      "instructions": "Take with meals.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1019",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1021",
+      "doctorId": "DOC1001",
+      "medicine": "Atorvastatin",
+      "dosage": "10 mg",
+      "frequency": "Once at night",
+      "instructions": "Take after dinner.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1020",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1022",
+      "doctorId": "DOC1001",
+      "medicine": "Levothyroxine",
+      "dosage": "50 mcg",
+      "frequency": "Once daily",
+      "instructions": "Empty stomach, morning.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1021",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1023",
+      "doctorId": "DOC1001",
+      "medicine": "Ibuprofen",
+      "dosage": "400 mg",
+      "frequency": "Thrice daily",
+      "instructions": "Take after food.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1022",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1024",
+      "doctorId": "DOC1001",
+      "medicine": "Omeprazole",
+      "dosage": "20 mg",
+      "frequency": "Once daily",
+      "instructions": "Before breakfast.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1023",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1025",
+      "doctorId": "DOC1001",
+      "medicine": "Amlodipine",
+      "dosage": "5 mg",
+      "frequency": "Once daily",
+      "instructions": "Take after breakfast.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1024",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1026",
+      "doctorId": "DOC1002",
+      "medicine": "Sumatriptan",
+      "dosage": "50 mg",
+      "frequency": "As needed",
+      "instructions": "Use at onset of migraine.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1025",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1027",
+      "doctorId": "DOC1002",
+      "medicine": "Metformin",
+      "dosage": "500 mg",
+      "frequency": "Twice daily",
+      "instructions": "Take with meals.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1026",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1028",
+      "doctorId": "DOC1002",
+      "medicine": "Salbutamol",
+      "dosage": "100 mcg",
+      "frequency": "As needed",
+      "instructions": "2 puffs during breathlessness.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1027",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1029",
+      "doctorId": "DOC1002",
+      "medicine": "Atorvastatin",
+      "dosage": "10 mg",
+      "frequency": "Once at night",
+      "instructions": "Take after dinner.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1028",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1031",
+      "doctorId": "DOC1002",
+      "medicine": "Ibuprofen",
+      "dosage": "400 mg",
+      "frequency": "Thrice daily",
+      "instructions": "Take after food.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1029",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1032",
+      "doctorId": "DOC1002",
+      "medicine": "Omeprazole",
+      "dosage": "20 mg",
+      "frequency": "Once daily",
+      "instructions": "Before breakfast.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1030",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1033",
+      "doctorId": "DOC1002",
+      "medicine": "Amlodipine",
+      "dosage": "5 mg",
+      "frequency": "Once daily",
+      "instructions": "Take after breakfast.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1031",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1034",
+      "doctorId": "DOC1002",
+      "medicine": "Sumatriptan",
+      "dosage": "50 mg",
+      "frequency": "As needed",
+      "instructions": "Use at onset of migraine.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1032",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1035",
+      "doctorId": "DOC1002",
+      "medicine": "Metformin",
+      "dosage": "500 mg",
+      "frequency": "Twice daily",
+      "instructions": "Take with meals.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1033",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1036",
+      "doctorId": "DOC1002",
+      "medicine": "Salbutamol",
+      "dosage": "100 mcg",
+      "frequency": "As needed",
+      "instructions": "2 puffs during breathlessness.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1034",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1037",
+      "doctorId": "DOC1002",
+      "medicine": "Atorvastatin",
+      "dosage": "10 mg",
+      "frequency": "Once at night",
+      "instructions": "Take after dinner.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1035",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1038",
+      "doctorId": "DOC1002",
+      "medicine": "Levothyroxine",
+      "dosage": "50 mcg",
+      "frequency": "Once daily",
+      "instructions": "Empty stomach, morning.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1036",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1039",
+      "doctorId": "DOC1002",
+      "medicine": "Ibuprofen",
+      "dosage": "400 mg",
+      "frequency": "Thrice daily",
+      "instructions": "Take after food.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1037",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1041",
+      "doctorId": "DOC1002",
+      "medicine": "Amlodipine",
+      "dosage": "5 mg",
+      "frequency": "Once daily",
+      "instructions": "Take after breakfast.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1038",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1042",
+      "doctorId": "DOC1002",
+      "medicine": "Sumatriptan",
+      "dosage": "50 mg",
+      "frequency": "As needed",
+      "instructions": "Use at onset of migraine.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1039",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1043",
+      "doctorId": "DOC1002",
+      "medicine": "Metformin",
+      "dosage": "500 mg",
+      "frequency": "Twice daily",
+      "instructions": "Take with meals.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1040",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1044",
+      "doctorId": "DOC1002",
+      "medicine": "Salbutamol",
+      "dosage": "100 mcg",
+      "frequency": "As needed",
+      "instructions": "2 puffs during breathlessness.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1041",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1045",
+      "doctorId": "DOC1002",
+      "medicine": "Atorvastatin",
+      "dosage": "10 mg",
+      "frequency": "Once at night",
+      "instructions": "Take after dinner.",
+      "status": "Completed"
+    },
+    {
+      "id": "RX1042",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1046",
+      "doctorId": "DOC1002",
+      "medicine": "Levothyroxine",
+      "dosage": "50 mcg",
+      "frequency": "Once daily",
+      "instructions": "Empty stomach, morning.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1043",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1047",
+      "doctorId": "DOC1002",
+      "medicine": "Ibuprofen",
+      "dosage": "400 mg",
+      "frequency": "Thrice daily",
+      "instructions": "Take after food.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1044",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1048",
+      "doctorId": "DOC1002",
+      "medicine": "Omeprazole",
+      "dosage": "20 mg",
+      "frequency": "Once daily",
+      "instructions": "Before breakfast.",
+      "status": "Active"
+    },
+    {
+      "id": "RX1045",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1049",
+      "doctorId": "DOC1002",
+      "medicine": "Amlodipine",
+      "dosage": "5 mg",
+      "frequency": "Once daily",
+      "instructions": "Take after breakfast.",
+      "status": "Completed"
     }
   ],
   "advice": [
     {
-      "id": "adv-ap-1",
-      "tenantId": "hospital-apollo",
-      "patientId": "p-ap-1",
-      "doctorId": "u-ap-doc",
-      "text": "Monitor blood pressure twice daily and maintain a low-sodium diet.",
-      "createdAt": "2026-08-12"
+      "id": "ADV1001",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1001",
+      "doctorId": "DOC1001",
+      "text": "Maintain prescribed routine for hypertension and attend the next review.",
+      "createdAt": "2026-01-12"
     },
     {
-      "id": "adv-su-1",
-      "tenantId": "hospital-sunrise",
-      "patientId": "p-su-1",
-      "doctorId": "u-sun-doc",
-      "text": "Maintain a regular sleep schedule and hydration.",
+      "id": "ADV1002",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1008",
+      "doctorId": "DOC1001",
+      "text": "Maintain prescribed routine for allergic rhinitis and attend the next review.",
+      "createdAt": "2026-02-12"
+    },
+    {
+      "id": "ADV1003",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1015",
+      "doctorId": "DOC1001",
+      "text": "Maintain prescribed routine for diabetes and attend the next review.",
+      "createdAt": "2026-03-12"
+    },
+    {
+      "id": "ADV1004",
+      "tenantId": "HOSP1001",
+      "patientId": "PAT1022",
+      "doctorId": "DOC1001",
+      "text": "Maintain prescribed routine for high cholesterol and attend the next review.",
+      "createdAt": "2026-04-12"
+    },
+    {
+      "id": "ADV1005",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1029",
+      "doctorId": "DOC1002",
+      "text": "Maintain prescribed routine for arthritis and attend the next review.",
+      "createdAt": "2026-05-12"
+    },
+    {
+      "id": "ADV1006",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1036",
+      "doctorId": "DOC1002",
+      "text": "Maintain prescribed routine for chronic back pain and attend the next review.",
+      "createdAt": "2026-06-12"
+    },
+    {
+      "id": "ADV1007",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1043",
+      "doctorId": "DOC1002",
+      "text": "Maintain prescribed routine for thyroid disorder and attend the next review.",
+      "createdAt": "2026-07-12"
+    },
+    {
+      "id": "ADV1008",
+      "tenantId": "HOSP1002",
+      "patientId": "PAT1050",
+      "doctorId": "DOC1002",
+      "text": "Maintain prescribed routine for asthma and attend the next review.",
       "createdAt": "2026-08-12"
     }
   ]

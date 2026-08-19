@@ -11,3 +11,45 @@
 .unauthorized>div{max-width:520px;padding:45px;background:#fff;border:1px solid #e8ecf2;border-radius:20px;box-shadow:0 20px 60px #17203312}
 .unauthorized .lock{font-size:36px;font-weight:900;color:#1769e0}
 .unauthorized button{border:0;border-radius:10px;padding:13px 18px;background:#1769e0;color:#fff;font-weight:800;cursor:pointer}
+
+/* Login password show/hide */
+.pw{position:relative;display:block}
+.pw input{padding-right:64px}
+.pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#1769e0;font-weight:700;font-size:12px;cursor:pointer;padding:6px 8px}
+
+/* Action buttons */
+.primary{border:0;border-radius:9px;padding:10px 15px;background:#1769e0;color:#fff;font-weight:700;cursor:pointer}
+.primary:hover{background:#125cc7}.primary:disabled{opacity:.6;cursor:default}
+.secondary.danger,.mini.danger{color:#b42318;border-color:#ffd1d1}
+.secondary.danger:hover,.mini.danger:hover{background:#fff0f0}
+.head-actions{display:flex;gap:8px}
+.row-actions{white-space:nowrap}
+.mini{border:1px solid #dbe1ea;background:#fff;color:#24324a;padding:6px 11px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;margin-right:6px}
+.mini:hover{background:#f5f7fb}
+
+/* Editor modal */
+.modal-backdrop{position:fixed;inset:0;background:#0b122480;display:grid;place-items:center;padding:20px;z-index:50}
+.modal{width:640px;max-width:100%;max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:26px 28px;box-shadow:0 30px 80px #0b122455}
+.modal h3{margin:0 0 16px;font-size:20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.form-grid label{display:block;font-size:12px;font-weight:700;color:#495566}
+.form-grid label.wide{grid-column:1/-1}
+.form-grid input,.form-grid textarea{display:block;width:100%;margin-top:6px;padding:10px 12px;border:1px solid #dbe1ea;border-radius:9px;font:inherit;outline:none}
+.form-grid textarea{min-height:74px;resize:vertical}
+.form-grid input:focus,.form-grid textarea:focus{border-color:#1769e0;box-shadow:0 0 0 3px #1769e014}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+
+/* Hospital settings drill-down */
+.hs-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:22px}
+.hs-tile{text-align:left;border:1px solid #e8ecf2;background:#fff;border-radius:14px;padding:16px;cursor:pointer;transition:border-color .12s,box-shadow .12s}
+.hs-tile:hover{border-color:#1769e0}
+.hs-tile.active{border-color:#1769e0;box-shadow:0 0 0 3px #1769e014}
+.hs-tile span{display:block;text-transform:uppercase;letter-spacing:.06em;font-size:10px;color:#7d899a;font-weight:800;margin-bottom:9px}
+.hs-tile b{font-size:16px}.hs-tile small{color:#8490a2;font-weight:500;font-size:11px}
+.hs-suits{padding:8px 22px 22px}
+.hs-suit{border:1px solid #e8ecf2;border-radius:12px;margin-top:12px;overflow:hidden}
+.hs-suit-head{width:100%;text-align:left;border:0;background:#fff;padding:15px 18px;cursor:pointer;display:grid;grid-template-columns:200px 1fr auto;gap:14px;align-items:center}
+.hs-suit-head:hover{background:#f7f9fc}
+.hs-suit-head b{font-size:14px}.hs-suit-head span{color:#54617a;font-size:13px}.hs-suit-head em{color:#8490a2;font-style:normal;font-size:12px;white-space:nowrap}
+.hs-suit.open .hs-suit-head{border-bottom:1px solid #eef1f5}
+@media(max-width:900px){.hs-tiles{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.hs-suit-head{grid-template-columns:1fr}}

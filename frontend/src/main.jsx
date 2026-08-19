@@ -25,8 +25,10 @@ const api=async(path,opts={})=>{
 
 const routes=[
  {name:'Overview',path:'/dashboard',roles:['admin','doctor','patient']},
- {name:'Patients',path:'/patients',roles:['admin','doctor','patient'],resource:'patients',idParam:'patientId'},
- {name:'Doctors',path:'/doctors',roles:['admin','doctor','patient'],resource:'doctors',idParam:'doctorId'},
+ // UI-visible to admin only. The API stays reachable for doctor/patient
+ // (intentional broken access) — they just don't get a nav entry / page.
+ {name:'Patients',path:'/patients',roles:['admin'],resource:'patients',idParam:'patientId'},
+ {name:'Doctors',path:'/doctors',roles:['admin'],resource:'doctors',idParam:'doctorId'},
  {name:'Appointments',path:'/appointments',roles:['admin','doctor','patient'],resource:'appointments',idParam:'appointmentId'},
  {name:'Reports',path:'/reports',roles:['admin','doctor','patient'],resource:'reports',idParam:'reportId'},
  {name:'Prescriptions',path:'/prescriptions',roles:['admin','doctor','patient'],resource:'prescriptions',idParam:'prescriptionId'},
@@ -48,6 +50,14 @@ const crud={
  remove:(resource,id)=>api(`/${resource}/${id}`,{method:'DELETE'}),
 };
 const WRITABLE=new Set(['patients','doctors','appointments','reports','prescriptions','advice','users']);
+// Patients see only their own records for these in the UI. The API still
+// returns the full (over-permissive) set — visible in the network tab — so the
+// intentional broken access stays; this only scopes what the UI displays.
+// A login patient's user id equals their patient record id (e.g. PAT1001).
+const PATIENT_SCOPED=new Set(['/reports','/appointments','/advice','/prescriptions']);
+const scopeForPatient=(user,path,rows)=>
+ (user.role==='patient' && PATIENT_SCOPED.has(path)) ? rows.filter(r=>r.patientId===user.id) : rows;
+const ownedByPatient=(user,arr)=> user.role==='patient' ? (arr||[]).filter(r=>r.patientId===user.id) : (arr||[]);
 const resourceForPath=p=>({'/hospital-settings':'hospitals'}[p]||p.slice(1));
 const singular=r=>({patients:'patient',doctors:'doctor',appointments:'appointment',reports:'report',prescriptions:'prescription',advice:'advice',users:'user',hospitals:'hospital'}[r]||r);
 const labelize=k=>k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());
@@ -185,17 +195,21 @@ function App(){
 
 function Card({title,value,sub}){return <div className="card"><span>{title}</span><strong>{value}</strong><small>{sub}</small></div>}
 
-function Content({path,data,navigate,refresh}){
+function Content({path,data,navigate,refresh,user}){
  const resource=resourceForPath(path);
  const canWrite=WRITABLE.has(resource);
  const [editing,setEditing]=useState(undefined); // undefined=closed · null=create · object=edit
  const del=async row=>{ if(!confirm(`Delete this ${singular(resource)}?`))return; try{await crud.remove(resource,row.id); refresh();}catch(e){alert(e.message)} };
  const onSaved=()=>{ setEditing(undefined); refresh(); };
 
- if(path==='/dashboard')return <><div className="cards"><Card title="Patients" value={data.pa.length} sub="Active records"/><Card title="Appointments" value={data.a.length} sub="Upcoming"/><Card title="Reports" value={data.r.length} sub="Clinical reports"/><Card title="Prescriptions" value={data.rx.length} sub="Active records"/></div><section><div className="section-head"><h2>Recent appointments</h2><span>Live tenant data</span></div><Table rows={data.a} keys={['date','time','status','reason']} resource="appointments" navigate={navigate}/></section></>;
+ if(path==='/dashboard'){
+   // Patients see only their own reports/prescriptions/appointments in the UI.
+   const a=ownedByPatient(user,data.a), r=ownedByPatient(user,data.r), rx=ownedByPatient(user,data.rx);
+   return <><div className="cards"><Card title="Patients" value={data.pa.length} sub="Active records"/><Card title="Appointments" value={a.length} sub="Upcoming"/><Card title="Reports" value={r.length} sub="Clinical reports"/><Card title="Prescriptions" value={rx.length} sub="Active records"/></div><section><div className="section-head"><h2>Recent appointments</h2><span>Live tenant data</span></div><Table rows={a} keys={['date','time','status','reason']} resource="appointments" navigate={navigate}/></section></>;
+ }
  if(path==='/hospital-settings')return <HospitalSettings hospitals={Array.isArray(data)?data:[]}/>;
 
- const rows=Array.isArray(data)?data:[];
+ const rows=scopeForPatient(user,path,Array.isArray(data)?data:[]);
  // Always surface the record id first (e.g. PAT1002, DOC1003, appointment 1000),
  // then up to six more fields. Passwords/tenantId stay hidden.
  const hidden=path==='/users'?['id','password','tenantId']:['id','tenantId'];

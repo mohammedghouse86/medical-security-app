@@ -26,6 +26,38 @@ untampered token; VULN-AUTH is the master key that defeats all of them.
 
 ---
 
+## 0b. Cross-cutting: mandatory API key
+
+Every endpoint in the table below also requires an `X-API-Key` request header.
+The key is simply the **base64 encoding of the username**, so it is constant per
+user and carries no secret:
+
+| User | Role | API key (`X-API-Key`) |
+|------|------|----------------------|
+| apollo.admin | admin | `YXBvbGxvLmFkbWlu` |
+| sunrise.admin | admin | `c3VucmlzZS5hZG1pbg==` |
+| apollo.doctor | doctor | `YXBvbGxvLmRvY3Rvcg==` |
+| sunrise.doctor | doctor | `c3VucmlzZS5kb2N0b3I=` |
+| apollo.patient | patient | `YXBvbGxvLnBhdGllbnQ=` |
+| sunrise.patient | patient | `c3VucmlzZS5wYXRpZW50` |
+
+The gate runs **before** `auth()`, so it applies to `/api/auth/login` and
+`/api/health` as well. Only `/api/docs` and `/api/openapi.yaml` are exempt —
+Swagger UI is a browser page that cannot set a header on its own load.
+
+| Condition | Response |
+|-----------|----------|
+| No `X-API-Key` header (or blank) | `403 {"error":"API key is missing"}` |
+| Header does not decode from base64, or decodes to an unknown username | `403 {"error":"API key is wrong"}` |
+| Decodes to a username present in `data.json` | request proceeds to `auth()` |
+
+> This is a **testing header, not a security control.** The key is a public,
+> reversible encoding of a username, it is never checked against the bearer
+> token, and any role's key opens any endpoint the token allows. It gates
+> *presence of a known username*, nothing more.
+
+---
+
 ## 1. Hospitals (basic)
 
 | Method | Path | Intended | Actual | Status |

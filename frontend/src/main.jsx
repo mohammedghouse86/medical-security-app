@@ -17,9 +17,20 @@ const getAppPath = () => {
 
 const appUrl = p => `${BASE_PATH}${p}` || '/';
 
-const api=async(path,opts={})=>{
+// --- Mandatory API key ------------------------------------------------------
+// Every request must carry X-API-Key: base64(username). The value is constant
+// per user, so it is computed once at login and reused for the whole session.
+// The server decodes it and rejects unknown usernames with 403.
+const apiKeyFor=username=>{try{return btoa(String(username||''))}catch(e){return ''}};
+const storedApiKey=()=>localStorage.getItem('apiKey')||'';
+
+// apiKey is pulled out of opts so it never leaks into the fetch init. Login
+// passes it explicitly (nothing is stored yet); every other call uses the
+// key saved at login.
+const api=async(path,{apiKey,...opts}={})=>{
  const token=localStorage.getItem('token');
- const r=await fetch(API_URL+'/api'+path,{...opts,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{}),...(opts.headers||{})}});
+ const key=apiKey??storedApiKey();
+ const r=await fetch(API_URL+'/api'+path,{...opts,headers:{'Content-Type':'application/json',...(key?{'X-API-Key':key}:{}),...(token?{Authorization:'Bearer '+token}:{}),...(opts.headers||{})}});
  const j=await r.json(); if(!r.ok) throw new Error(j.error||'Request failed'); return j;
 };
 
@@ -126,7 +137,7 @@ const Icon={
 
 function Login({onLogin}){
  const [u,setU]=useState(''),[p,setP]=useState(''),[e,setE]=useState(''),[show,setShow]=useState(false),[busy,setBusy]=useState(false);
- const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const x=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})});localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl('/dashboard'));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
+ const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const key=apiKeyFor(u);const x=await api('/auth/login',{method:'POST',apiKey:key,body:JSON.stringify({username:u,password:p})});localStorage.setItem('apiKey',key);localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl('/dashboard'));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
  return <div className="login">
    <div className="login-card">
      <div className="brand"><span>✚</span> MedSecure</div>

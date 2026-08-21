@@ -13,6 +13,14 @@ info:
     enforce; "actual access" is what the server currently allows. See
     `RBAC.md` for the consolidated matrix.
 
+
+    API KEY — every operation below requires an `X-API-Key` header whose value
+    is the base64 encoding of the caller's username (constant per user, e.g.
+    `apollo.admin` -> `YXBvbGxvLmFkbWlu`). A request with no header gets
+    `403 {"error":"API key is missing"}`; one that does not decode to a known
+    username gets `403 {"error":"API key is wrong"}`. This is checked before
+    authentication, so it applies to `/api/auth/login` and `/api/health` too.
+
 servers:
   - url: https://my-medical-security-app-backend.onrender.com
     description: Production (Render)
@@ -32,27 +40,32 @@ tags:
   - name: Advice
   - name: System
 
+# Both are required on every operation (one list entry = logical AND).
 security:
   - bearerAuth: []
+    apiKeyAuth: []
 
 paths:
   /api/health:
     get:
       tags: [System]
       summary: Health check
-      security: []
+      security:
+        - apiKeyAuth: []
       responses:
         '200':
           description: Service status
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Health' }
+        '403': { $ref: '#/components/responses/ApiKeyError' }
 
   /api/auth/login:
     post:
       tags: [Auth]
       summary: Log in and receive a JWT
-      security: []
+      security:
+        - apiKeyAuth: []
       description: >
         Returns an HS256-signed JWT. **[RBAC ISSUE — auth]** The signature is
         NOT verified on subsequent requests (see `auth()` middleware), so a
@@ -74,6 +87,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/LoginResponse' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/ApiKeyError' }
 
   /api/auth/me:
     get:
@@ -484,6 +498,16 @@ paths:
 
 components:
   securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: >
+        Mandatory on every endpoint. The value is the base64 encoding of the
+        logged-in user's username and never changes for that user, e.g.
+        apollo.admin -> YXBvbGxvLmFkbWlu, apollo.doctor -> YXBvbGxvLmRvY3Rvcg==,
+        apollo.patient -> YXBvbGxvLnBhdGllbnQ=. The server decodes it and
+        accepts the request only if the decoded value is a known username.
     bearerAuth:
       type: http
       scheme: bearer
@@ -504,7 +528,8 @@ components:
 
   responses:
     Unauthorized: { description: Missing/invalid token, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
-    Forbidden:    { description: Role not permitted, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Forbidden:    { description: 'Role not permitted, or the X-API-Key header is missing/wrong', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ApiKeyError:  { description: 'API key is missing (no X-API-Key header) or API key is wrong (does not decode to a known username)', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
     NotFound:     { description: Not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
     Deleted:      { description: Deleted, content: { application/json: { schema: { type: object, properties: { deleted: { type: boolean } } } } } }
 

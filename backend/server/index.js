@@ -14,6 +14,45 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '2mb' }));
 
+// --- Mandatory API key ------------------------------------------------------
+// Every API endpoint requires an `X-API-Key` header. The key is just the base64
+// encoding of the caller's username, so it is constant per user:
+//   apollo.admin -> YXBvbGxvLmFkbWlu      apollo.patient -> YXBvbGxvLnBhdGllbnQ=
+// The server decodes it and proceeds only when the decoded value matches a
+// username in the data store. No key -> 403 "API key is missing"; unreadable or
+// unknown username -> 403 "API key is wrong". This runs before auth(), so a
+// request without a key is rejected even on /api/auth/login.
+const API_KEY_HEADER = 'x-api-key';
+// Swagger UI and the raw spec are plain browser assets - the page cannot attach
+// a header to its own bootstrap request, so the docs stay open.
+const API_KEY_EXEMPT = new Set(['/api/docs', '/api/openapi.yaml']);
+
+// Buffer's base64 decoder silently drops invalid characters, so re-encode the
+// result and compare: that is what actually rejects a non-base64 header.
+// Padding and base64url (-_) spellings are both accepted.
+function decodeApiKey(raw) {
+  const s = String(raw).trim().replace(/-/g, '+').replace(/_/g, '/');
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(s)) return null;
+  const decoded = Buffer.from(s, 'base64').toString('utf8');
+  const strip = v => v.replace(/=+$/, '');
+  if (!decoded || strip(Buffer.from(decoded, 'utf8').toString('base64')) !== strip(s)) return null;
+  return decoded;
+}
+
+function apiKeyGate(req, res, next) {
+  // CORS preflight carries no custom headers, so it must never be gated.
+  if (req.method === 'OPTIONS') return next();
+  if (!req.path.startsWith('/api/') || API_KEY_EXEMPT.has(req.path)) return next();
+  const raw = req.headers[API_KEY_HEADER];
+  if (!raw || !String(raw).trim()) return res.status(403).json({ error: 'API key is missing' });
+  const username = decodeApiKey(raw);
+  const user = username && read().users.find(u => u.username === username);
+  if (!user) return res.status(403).json({ error: 'API key is wrong' });
+  req.apiKeyUser = user;
+  next();
+}
+app.use(apiKeyGate);
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'MedSecure API' });
 });

@@ -142,7 +142,7 @@ function Login({onLogin}){
  const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const key=apiKeyFor(u);const {data:x,headers}=await api('/auth/login',{method:'POST',apiKey:key,withHeaders:true,body:JSON.stringify({username:u,password:p})});localStorage.setItem('apiKey',headers.get('X-API-Key')||key);localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl('/dashboard'));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
  return <div className="login">
    <div className="login-card">
-     <div className="brand"><span>✚</span> MedSecure</div>
+     <div className="brand"><span>✚</span> Medical Logictics App</div>
      <p className="eyebrow">Care Management Platform</p>
      <h1>Welcome back</h1>
      <p className="muted">Sign in to access secure clinical workflows for your care team.</p>
@@ -223,7 +223,7 @@ function App(){
 
  return <div className="app">
    <aside>
-     <div className="brand"><span>✚</span> MedSecure</div>
+     <div className="brand"><span>✚</span> Medical Logictics App</div>
      <div className="tenant">{user.tenantId.replace('hospital-','').toUpperCase()}<b>{user.role}</b></div>
      <nav>{routes.filter(r=>r.roles.includes(user.role)).map(r=>
        <button className={!dm&&path===r.path?'active':''} onClick={()=>navigate(r.path)} key={r.path}>{r.name}</button>

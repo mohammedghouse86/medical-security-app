@@ -77,6 +77,13 @@ const ownedByPatient=(user,arr)=> user.role==='patient' ? (arr||[]).filter(r=>r.
 // admin, or the assigned doctor (the record's doctorId). Patients get
 // read-only views. (UI only — the API stays reachable, intentional.)
 const DOCTOR_OWNED=new Set(['reports','advice','prescriptions']);
+// Creating and deleting users is withdrawn; the API answers 403 for every role.
+// The UI refuses locally rather than round-tripping, so the buttons stay safe
+// against a backend that has not picked up the change yet — otherwise clicking
+// them against an older build would really create or delete a record. Wording
+// mirrors USERS_ADD_DISABLED / USERS_DELETE_DISABLED in backend/server/index.js.
+const WITHDRAWN_CREATE={users:'Adding users for any roles is not allowed anymore'};
+const WITHDRAWN_DELETE={users:'Deleting users for any roles is not allowed anymore'};
 const canWriteResource=(user,resource)=>{
  if(!WRITABLE.has(resource)) return false;
  if(user.role==='admin') return true;
@@ -242,12 +249,31 @@ function App(){
 
 function Card({title,value,sub}){return <div className="card"><span>{title}</span><strong>{value}</strong><small>{sub}</small></div>}
 
+// Transient error popup. Each raise() bumps a counter so re-raising the same
+// text restarts the timer — without it React sees an unchanged value and the
+// popup would not reappear on a second click.
+const TOAST_MS=2000;
+function useToast(){
+ const [toast,setToast]=useState(null); // {text,n}
+ useEffect(()=>{ if(!toast)return; const id=setTimeout(()=>setToast(null),TOAST_MS); return ()=>clearTimeout(id); },[toast]);
+ return [toast,text=>setToast(t=>({text,n:(t?.n||0)+1}))];
+}
+function Toast({toast}){
+ if(!toast)return null;
+ return <div className="toast" role="alert" aria-live="assertive">{toast.text}</div>;
+}
+
 function Content({path,data,navigate,refresh,user}){
  const resource=resourceForPath(path);
  const canWrite=canWriteResource(user,resource);
  const dVerb=deleteVerb(user,resource);
  const [editing,setEditing]=useState(undefined); // undefined=closed · null=create · object=edit
- const del=async row=>{ if(!confirm(`${dVerb} this ${singular(resource)}?`))return; try{await crud.remove(resource,row.id); refresh();}catch(e){alert(e.message)} };
+ const [toast,notify]=useToast();
+ const del=async row=>{ if(WITHDRAWN_DELETE[resource])return notify(WITHDRAWN_DELETE[resource]);
+  if(!confirm(`${dVerb} this ${singular(resource)}?`))return;
+  try{await crud.remove(resource,row.id); refresh();}catch(e){notify(e.message)} };
+ const add=()=>{ if(WITHDRAWN_CREATE[resource])return notify(WITHDRAWN_CREATE[resource]);
+  setEditing(null); };
  const onSaved=()=>{ setEditing(undefined); refresh(); };
 
  if(path==='/dashboard'){
@@ -263,7 +289,8 @@ function Content({path,data,navigate,refresh,user}){
  const hidden=path==='/users'?['id','password','tenantId']:['id','tenantId'];
  const keys=['id',...Object.keys(rows[0]||{}).filter(k=>!hidden.includes(k)).slice(0,6)];
  return <><section>
-   <div className="section-head"><div><h2>{routeFor(path).name}</h2><span>{rows.length} records · click a row for details</span></div>{canWrite&&<button className="primary" onClick={()=>setEditing(null)}>+ New</button>}</div>
+   <div className="section-head"><div><h2>{routeFor(path).name}</h2><span>{rows.length} records · click a row for details</span></div>{canWrite&&<button className="primary" onClick={add}>+ New</button>}</div>
+   <Toast toast={toast}/>
    <Table rows={rows} keys={keys} resource={resource} navigate={navigate} onEdit={canWrite?setEditing:null} onDelete={canWrite?del:null} canModify={r=>canModifyRow(user,resource,r)} deleteLabel={dVerb}/>
  </section>{editing!==undefined&&<Editor resource={resource} item={editing} onClose={()=>setEditing(undefined)} onSaved={onSaved} user={user}/>}</>;
 }
@@ -277,8 +304,12 @@ function Detail({resource,item,back,refresh,user}){
  const canMod=canModifyRow(user,resource,item);
  const dVerb=deleteVerb(user,resource);
  const [editing,setEditing]=useState(false);
- const del=async()=>{ if(!confirm(`${dVerb} this ${singular(resource)}?`))return; try{await crud.remove(resource,item.id); back();}catch(e){alert(e.message)} };
+ const [toast,notify]=useToast();
+ const del=async()=>{ if(WITHDRAWN_DELETE[resource])return notify(WITHDRAWN_DELETE[resource]);
+  if(!confirm(`${dVerb} this ${singular(resource)}?`))return;
+  try{await crud.remove(resource,item.id); back();}catch(e){notify(e.message)} };
  return <section><div className="section-head"><h2>{labelize(singular(resource))} details</h2><div className="head-actions">{canMod&&<button className="secondary" onClick={()=>setEditing(true)}>Edit</button>}{canMod&&<button className="secondary danger" onClick={del}>{dVerb}</button>}<button className="secondary" onClick={back}>← Back</button></div></div>
+  <Toast toast={toast}/>
   <div className="detail-grid">{Object.entries(item).filter(([k])=>k!=='password').map(([k,v])=><div className="detail-field" key={k}><span>{labelize(k)}</span><strong>{fmt(v)}</strong></div>)}</div>
   {editing&&<Editor resource={resource} item={item} onClose={()=>setEditing(false)} onSaved={()=>{setEditing(false);refresh();}} user={user}/>}
  </section>;

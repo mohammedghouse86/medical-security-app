@@ -156,9 +156,15 @@ app.get('/api/hospital-settings/:hospitalId',auth,(req,res)=>{const d=read(); co
 
 app.get('/api/users',auth,(req,res)=>{const d=read(); res.json(req.user.role==='admin'?d.users.filter(u=>u.tenantId===req.user.tenantId):d.users.filter(u=>u.id===req.user.userId));});
 app.get('/api/users/:userId',auth,(req,res)=>{const d=read(); const x=find(d.users,req.params.userId); res.json(x||{error:'Not found'});});
-app.post('/api/users',auth,allow('admin'),(req,res)=>{const d=read(); const x={id:'USR'+Date.now(),tenantId:req.user.tenantId,...req.body}; d.users.push(x); write(d); res.status(201).json(x);});
+// Creating and deleting users is withdrawn for every role, admin included.
+// The routes stay mounted purely so callers get this JSON message instead of
+// Express's default HTML 404, and they are deliberately not wrapped in auth()
+// or allow() — the answer is the same whoever asks.
+const USERS_ADD_DISABLED = 'Adding users for any roles is not allowed anymore';
+const USERS_DELETE_DISABLED = 'Deleting users for any roles is not allowed anymore';
+app.post('/api/users',(req,res)=>res.status(403).json({error:USERS_ADD_DISABLED}));
 app.put('/api/users/:userId',auth,allow('admin'),(req,res)=>{const d=read(); const x=find(d.users,req.params.userId); if(!x)return res.status(404).json({error:'Not found'}); Object.assign(x,req.body); write(d); res.json(x);});
-app.delete('/api/users/:userId',auth,allow('admin'),(req,res)=>{const d=read(); const x=removeById(d.users,req.params.userId); if(!x)return res.status(404).json({error:'Not found'}); write(d); res.json({deleted:true});});
+app.delete('/api/users/:userId',(req,res)=>res.status(403).json({error:USERS_DELETE_DISABLED}));
 
 app.get('/api/patients',auth,(req,res)=>{const d=read(); res.json(req.user.role==='admin'?d.patients.filter(x=>x.tenantId===req.user.tenantId):req.user.role==='doctor'?d.patients.filter(x=>x.doctorId===req.user.userId):d.patients.filter(x=>x.userId===req.user.userId));});
 app.get('/api/patients/:patientId',auth,(req,res)=>{const d=read(); const x=find(d.patients,req.params.patientId); if(!x)return res.status(404).json({error:'Not found'}); /* RBAC-01/09 intentional */ res.json(x);});

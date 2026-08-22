@@ -87,9 +87,9 @@ client can read it once rather than deriving it.
 |--------|------|----------|--------|--------|
 | GET | /api/users | admin: tenant · others: self | same | ✅ OK |
 | GET | /api/users/{id} | self / admin | **any user, incl. plaintext password** | 🔴 RBAC-USR (IDOR + credential exposure) |
-| POST | /api/users | admin | admin (enforced) | ✅ OK |
+| POST | /api/users | — (withdrawn) | **always 403** for every role | ⛔ WITHDRAWN — `Adding users for any roles is not allowed anymore` |
 | PUT | /api/users/{id} | admin, own tenant | admin, **any tenant** | 🟠 no tenant scoping |
-| DELETE | /api/users/{id} | admin, own tenant | admin, **any tenant** | 🟠 no tenant scoping |
+| DELETE | /api/users/{id} | — (withdrawn) | **always 403** for every role | ⛔ WITHDRAWN — `Deleting users for any roles is not allowed anymore` |
 
 ## 4. Patients
 

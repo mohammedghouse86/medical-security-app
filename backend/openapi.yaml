@@ -201,12 +201,14 @@ paths:
         '200': { description: Users, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/User' } } } } }
     post:
       tags: [Users]
-      summary: Create a user
-      description: Enforced admin-only.
-      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+      summary: Create a user (withdrawn)
+      description: >
+        **WITHDRAWN.** User creation is disabled for every role, admin included.
+        Always returns `403 {"error":"Adding users for any roles is not allowed
+        anymore"}`. No role check is applied — the answer is the same for any
+        caller, and the request body is ignored.
       responses:
-        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
-        '403': { $ref: '#/components/responses/Forbidden' }
+        '403': { $ref: '#/components/responses/UsersWriteWithdrawn' }
 
   /api/users/{userId}:
     parameters:
@@ -231,12 +233,13 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
     delete:
       tags: [Users]
-      summary: Delete a user
-      description: Enforced admin-only, but no tenant scoping.
+      summary: Delete a user (withdrawn)
+      description: >
+        **WITHDRAWN.** User deletion is disabled for every role, admin included.
+        Always returns `403 {"error":"Deleting users for any roles is not
+        allowed anymore"}`. No role check is applied.
       responses:
-        '200': { $ref: '#/components/responses/Deleted' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/UsersWriteWithdrawn' }
 
   /api/patients:
     get:
@@ -546,6 +549,7 @@ components:
     Forbidden:    { description: 'Role not permitted, or the X-API-Key header is wrong', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
     ApiKeyError:  { description: 'API key is wrong - the X-API-Key header does not decode to a known username', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
     MissingApiKey: { description: 'API key is missing - no X-API-Key header was sent', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    UsersWriteWithdrawn: { description: 'Creating or deleting users is no longer allowed for any role', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
     NotFound:     { description: Not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
     Deleted:      { description: Deleted, content: { application/json: { schema: { type: object, properties: { deleted: { type: boolean } } } } } }
 

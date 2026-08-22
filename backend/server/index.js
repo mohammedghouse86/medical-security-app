@@ -10,7 +10,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'medsecure-dev-secret';
 
 const app = express();
 app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(',').map(x => x.trim()) : true
+  origin: process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(',').map(x => x.trim()) : true,
+  // Cross-origin JS can only read a custom response header when it is exposed.
+  exposedHeaders: ['X-API-Key']
 }));
 app.use(express.json({ limit: '2mb' }));
 
@@ -19,10 +21,13 @@ app.use(express.json({ limit: '2mb' }));
 // encoding of the caller's username, so it is constant per user:
 //   apollo.admin -> YXBvbGxvLmFkbWlu      apollo.patient -> YXBvbGxvLnBhdGllbnQ=
 // The server decodes it and proceeds only when the decoded value matches a
-// username in the data store. No key -> 403 "API key is missing"; unreadable or
+// username in the data store. No key -> 401 "API key is missing"; unreadable or
 // unknown username -> 403 "API key is wrong". This runs before auth(), so a
 // request without a key is rejected even on /api/auth/login.
+// A successful login echoes the caller's key back in the X-API-Key response
+// header, so a client can read it once and reuse it.
 const API_KEY_HEADER = 'x-api-key';
+const apiKeyForUsername = username => Buffer.from(String(username), 'utf8').toString('base64');
 // Swagger UI and the raw spec are plain browser assets - the page cannot attach
 // a header to its own bootstrap request, so the docs stay open.
 const API_KEY_EXEMPT = new Set(['/api/docs', '/api/openapi.yaml']);
@@ -44,7 +49,7 @@ function apiKeyGate(req, res, next) {
   if (req.method === 'OPTIONS') return next();
   if (!req.path.startsWith('/api/') || API_KEY_EXEMPT.has(req.path)) return next();
   const raw = req.headers[API_KEY_HEADER];
-  if (!raw || !String(raw).trim()) return res.status(403).json({ error: 'API key is missing' });
+  if (!raw || !String(raw).trim()) return res.status(401).json({ error: 'API key is missing' });
   const username = decodeApiKey(raw);
   const user = username && read().users.find(u => u.username === username);
   if (!user) return res.status(403).json({ error: 'API key is wrong' });
@@ -127,6 +132,9 @@ const removeById=(arr,id)=>{const i=arr.findIndex(x=>String(x.id)===String(id));
 app.post('/api/auth/login',(req,res)=>{
   const d=read(); const u=d.users.find(x=>x.username===req.body.username && x.password===req.body.password);
   if(!u) return res.status(401).json({error:'Invalid credentials'});
+  // Hand the caller its API key back so it does not have to derive it. Same
+  // constant value the gate expects on every later request.
+  res.set('X-API-Key', apiKeyForUsername(u.username));
   res.json({token:makeToken(u), user:{id:u.id,username:u.username,name:u.name,role:u.role,tenantId:u.tenantId}});
 });
 app.get('/api/auth/me',auth,(req,res)=>{

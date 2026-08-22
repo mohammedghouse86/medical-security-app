@@ -47,9 +47,13 @@ Swagger UI is a browser page that cannot set a header on its own load.
 
 | Condition | Response |
 |-----------|----------|
-| No `X-API-Key` header (or blank) | `403 {"error":"API key is missing"}` |
+| No `X-API-Key` header (or blank) | `401 {"error":"API key is missing"}` |
 | Header does not decode from base64, or decodes to an unknown username | `403 {"error":"API key is wrong"}` |
 | Decodes to a username present in `data.json` | request proceeds to `auth()` |
+
+A successful `POST /api/auth/login` returns the caller's key in the `X-API-Key`
+response header (exposed to browsers via `Access-Control-Expose-Headers`), so a
+client can read it once rather than deriving it.
 
 > This is a **testing header, not a security control.** The key is a public,
 > reversible encoding of a username, it is never checked against the bearer

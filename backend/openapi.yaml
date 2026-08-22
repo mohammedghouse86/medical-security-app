@@ -17,9 +17,14 @@ info:
     API KEY — every operation below requires an `X-API-Key` header whose value
     is the base64 encoding of the caller's username (constant per user, e.g.
     `apollo.admin` -> `YXBvbGxvLmFkbWlu`). A request with no header gets
-    `403 {"error":"API key is missing"}`; one that does not decode to a known
+    `401 {"error":"API key is missing"}`; one that does not decode to a known
     username gets `403 {"error":"API key is wrong"}`. This is checked before
     authentication, so it applies to `/api/auth/login` and `/api/health` too.
+
+
+    A successful `/api/auth/login` also returns the caller's key in the
+    `X-API-Key` response header, so a client can read it once instead of
+    deriving it.
 
 servers:
   - url: https://my-medical-security-app-backend.onrender.com
@@ -58,6 +63,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Health' }
+        '401': { $ref: '#/components/responses/MissingApiKey' }
         '403': { $ref: '#/components/responses/ApiKeyError' }
 
   /api/auth/login:
@@ -86,7 +92,14 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/LoginResponse' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
+          headers:
+            X-API-Key:
+              description: >
+                The caller's API key (base64 of the username). Echoed back so a
+                client can store it and send it on every later request. Exposed
+                to browsers via Access-Control-Expose-Headers.
+              schema: { type: string, example: YXBvbGxvLmFkbWlu }
+        '401': { description: 'Invalid credentials, or the X-API-Key header is missing', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
         '403': { $ref: '#/components/responses/ApiKeyError' }
 
   /api/auth/me:
@@ -508,6 +521,8 @@ components:
         apollo.admin -> YXBvbGxvLmFkbWlu, apollo.doctor -> YXBvbGxvLmRvY3Rvcg==,
         apollo.patient -> YXBvbGxvLnBhdGllbnQ=. The server decodes it and
         accepts the request only if the decoded value is a known username.
+        Missing header -> 401; unreadable or unknown username -> 403. A
+        successful login echoes the key back in the X-API-Key response header.
     bearerAuth:
       type: http
       scheme: bearer
@@ -528,8 +543,9 @@ components:
 
   responses:
     Unauthorized: { description: Missing/invalid token, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
-    Forbidden:    { description: 'Role not permitted, or the X-API-Key header is missing/wrong', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
-    ApiKeyError:  { description: 'API key is missing (no X-API-Key header) or API key is wrong (does not decode to a known username)', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Forbidden:    { description: 'Role not permitted, or the X-API-Key header is wrong', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ApiKeyError:  { description: 'API key is wrong - the X-API-Key header does not decode to a known username', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    MissingApiKey: { description: 'API key is missing - no X-API-Key header was sent', content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
     NotFound:     { description: Not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
     Deleted:      { description: Deleted, content: { application/json: { schema: { type: object, properties: { deleted: { type: boolean } } } } } }
 

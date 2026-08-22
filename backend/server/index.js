@@ -22,15 +22,17 @@ app.use(express.json({ limit: '2mb' }));
 //   apollo.admin -> YXBvbGxvLmFkbWlu      apollo.patient -> YXBvbGxvLnBhdGllbnQ=
 // The server decodes it and proceeds only when the decoded value matches a
 // username in the data store. No key -> 401 "API key is missing"; unreadable or
-// unknown username -> 403 "API key is wrong". This runs before auth(), so a
-// request without a key is rejected even on /api/auth/login.
-// A successful login echoes the caller's key back in the X-API-Key response
-// header, so a client can read it once and reuse it.
+// unknown username -> 403 "API key is wrong".
+// /api/auth/login is exempt: it takes only username + password, and a caller
+// has no key to present until it answers. A successful login echoes the
+// caller's key back in the X-API-Key response header, so a client reads it
+// there and sends it on every later request.
 const API_KEY_HEADER = 'x-api-key';
 const apiKeyForUsername = username => Buffer.from(String(username), 'utf8').toString('base64');
-// Swagger UI and the raw spec are plain browser assets - the page cannot attach
-// a header to its own bootstrap request, so the docs stay open.
-const API_KEY_EXEMPT = new Set(['/api/docs', '/api/openapi.yaml']);
+// Login issues the key, so it cannot require one. Swagger UI and the raw spec
+// are plain browser assets - the page cannot attach a header to its own
+// bootstrap request - so the docs stay open too.
+const API_KEY_EXEMPT = new Set(['/api/auth/login', '/api/docs', '/api/openapi.yaml']);
 
 // Buffer's base64 decoder silently drops invalid characters, so re-encode the
 // result and compare: that is what actually rejects a non-base64 header.

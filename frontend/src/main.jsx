@@ -24,10 +24,10 @@ const appUrl = p => `${BASE_PATH}${p}` || '/';
 const apiKeyFor=username=>{try{return btoa(String(username||''))}catch(e){return ''}};
 const storedApiKey=()=>localStorage.getItem('apiKey')||'';
 
-// apiKey is pulled out of opts so it never leaks into the fetch init. Login
-// passes it explicitly (nothing is stored yet); every other call uses the
-// key saved at login. withHeaders returns the response headers alongside the
-// body, which is how login picks up the key the server echoes back.
+// apiKey is pulled out of opts so it never leaks into the fetch init. Passing
+// '' suppresses the header entirely (login must not send one); omitting it
+// uses the key saved at login. withHeaders returns the response headers
+// alongside the body, which is how login picks up the key the server issues.
 const api=async(path,{apiKey,withHeaders,...opts}={})=>{
  const token=localStorage.getItem('token');
  const key=apiKey??storedApiKey();
@@ -146,7 +146,7 @@ const Icon={
 
 function Login({onLogin}){
  const [u,setU]=useState(''),[p,setP]=useState(''),[e,setE]=useState(''),[show,setShow]=useState(false),[busy,setBusy]=useState(false);
- const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const key=apiKeyFor(u);const {data:x,headers}=await api('/auth/login',{method:'POST',apiKey:key,withHeaders:true,body:JSON.stringify({username:u,password:p})});localStorage.setItem('apiKey',headers.get('X-API-Key')||key);localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl('/dashboard'));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
+ const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const {data:x,headers}=await api('/auth/login',{method:'POST',apiKey:'',withHeaders:true,body:JSON.stringify({username:u,password:p})});localStorage.setItem('apiKey',headers.get('X-API-Key')||apiKeyFor(u));localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl('/dashboard'));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
  return <div className="login">
    <div className="login-card">
      <div className="brand"><span>✚</span> Medical Logictics App</div>

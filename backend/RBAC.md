@@ -41,8 +41,9 @@ user and carries no secret:
 | apollo.patient | patient | `YXBvbGxvLnBhdGllbnQ=` |
 | sunrise.patient | patient | `c3VucmlzZS5wYXRpZW50` |
 
-The gate runs **before** `auth()`, so it applies to `/api/auth/login` and
-`/api/health` as well. Only `/api/docs` and `/api/openapi.yaml` are exempt —
+The gate runs **before** `auth()`, so it applies to `/api/health` as well.
+Exempt: `/api/auth/login` (it issues the key, so it cannot demand one — send
+only `username` + `password`), plus `/api/docs` and `/api/openapi.yaml`, since
 Swagger UI is a browser page that cannot set a header on its own load.
 
 | Condition | Response |

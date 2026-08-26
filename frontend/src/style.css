@@ -85,6 +85,8 @@ svg{display:block}
 .login-btn:active{transform:translateY(1px)}
 .login-btn:disabled{opacity:.65;cursor:default;box-shadow:none}
 .login-foot{text-align:center;color:var(--faint);font-size:12px;margin:22px 0 0}
+.linklike{background:none;border:0;padding:0;font:inherit;color:var(--primary);font-weight:600;cursor:pointer}
+.linklike:hover{text-decoration:underline}
 
 /* ============================================================
    App shell

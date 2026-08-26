@@ -50,6 +50,12 @@ const routes=[
  {name:'Hospital Settings',path:'/hospital-settings',roles:['admin'],resource:'hospitals',idParam:'hospitalId'}
 ];
 
+// This one account lands on a standalone welcome page after signing in instead
+// of going straight to the dashboard, so signing in as it issues no data call
+// at all until "Enter Admin" is pressed. Every other account is unaffected.
+const WELCOME_USERNAME='apollo.admin';
+const landingFor=user=>user.username===WELCOME_USERNAME?'/welcome':'/dashboard';
+
 const routeFor=p=>routes.find(r=>r.path===p)||routes[0];
 const detailMatch=p=>{
  const m=p.match(/^\/(patients|doctors|appointments|reports|prescriptions|advice|users|hospitals)\/([^/]+)$/);
@@ -146,7 +152,7 @@ const Icon={
 
 function Login({onLogin}){
  const [u,setU]=useState(''),[p,setP]=useState(''),[e,setE]=useState(''),[show,setShow]=useState(false),[busy,setBusy]=useState(false);
- const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const {data:x,headers}=await api('/auth/login',{method:'POST',apiKey:'',withHeaders:true,body:JSON.stringify({username:u,password:p})});localStorage.setItem('apiKey',headers.get('X-API-Key')||apiKeyFor(u));localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl('/dashboard'));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
+ const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const {data:x,headers}=await api('/auth/login',{method:'POST',apiKey:'',withHeaders:true,body:JSON.stringify({username:u,password:p})});localStorage.setItem('apiKey',headers.get('X-API-Key')||apiKeyFor(u));localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl(landingFor(x.user)));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
  return <div className="login">
    <div className="login-card">
      <div className="brand"><span>✚</span> Medical Logictics App</div>
@@ -162,6 +168,19 @@ function Login({onLogin}){
        <button className="login-btn" disabled={busy}>{busy?'Signing in…':'Sign in'}</button>
      </form>
      <p className="login-foot">Protected environment · authorized users only</p>
+   </div>
+ </div>;
+}
+
+function WelcomeAdmin({user,onEnter,onSignOut}){
+ return <div className="login">
+   <div className="login-card">
+     <div className="brand"><span>✚</span> Medical Logictics App</div>
+     <p className="eyebrow">Administrator</p>
+     <h1>Welcome, Admin</h1>
+     <p className="muted">Signed in as {user.name} · {user.tenantId}. No records have been loaded yet.</p>
+     <button className="login-btn" onClick={onEnter}>Enter Admin</button>
+     <p className="login-foot"><button type="button" className="linklike" onClick={onSignOut}>Sign out</button></p>
    </div>
  </div>;
 }
@@ -193,7 +212,15 @@ function App(){
    history.pushState({},'', appUrl(p)); setPath(p);
  };
 
- useEffect(()=>{if(user && path!=='/unauthorized' && path!=='/') load(path)},[path,user]);
+ useEffect(()=>{if(user && path!=='/unauthorized' && path!=='/' && path!=='/welcome') load(path)},[path,user]);
+
+ // The welcome page belongs to one account; anyone else who reaches that URL
+ // goes straight into the app.
+ useEffect(()=>{
+   if(user && path==='/welcome' && user.username!==WELCOME_USERNAME){
+     history.replaceState({},'',appUrl('/dashboard')); setPath('/dashboard');
+   }
+ },[path,user]);
 
  async function load(p){
    try{
@@ -219,8 +246,13 @@ function App(){
 
  // Login rewrites the URL to /dashboard, so path has to follow it: the load
  // effect skips '/', which would leave the shell rendered with no content.
- if(!user)return <Login onLogin={u=>{setUser(u);setPath('/dashboard')}}/>;
+ if(!user)return <Login onLogin={u=>{setUser(u);setPath(landingFor(u))}}/>;
  const logout=()=>{localStorage.clear();setUser(null);history.replaceState({},'',appUrl('/'));setPath('/')};
+ if(path==='/welcome'){
+   if(user.username!==WELCOME_USERNAME) return null; // the effect above is redirecting
+   return <WelcomeAdmin user={user} onSignOut={logout}
+     onEnter={()=>{history.pushState({},'',appUrl('/dashboard'));setPath('/dashboard')}}/>;
+ }
  if(path==='/unauthorized')return <Unauthorized goDashboard={()=>navigate('/dashboard')}/>;
 
  const dm=detailMatch(path);

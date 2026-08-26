@@ -42,7 +42,7 @@ user and carries no secret:
 | sunrise.patient | patient | `c3VucmlzZS5wYXRpZW50` |
 
 The gate runs **before** `auth()`, so it applies to `/api/health` as well.
-Exempt: `/api/auth/login` (it issues the key, so it cannot demand one — send
+Exempt: `/api/signin` (it issues the key, so it cannot demand one — send
 only `username` + `password`), plus `/api/docs` and `/api/openapi.yaml`, since
 Swagger UI is a browser page that cannot set a header on its own load.
 

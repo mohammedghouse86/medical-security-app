@@ -50,11 +50,18 @@ const routes=[
  {name:'Hospital Settings',path:'/hospital-settings',roles:['admin'],resource:'hospitals',idParam:'hospitalId'}
 ];
 
-// This one account lands on a standalone welcome page after signing in instead
-// of going straight to the dashboard, so signing in as it issues no data call
-// at all until "Enter Admin" is pressed. Every other account is unaffected.
+// This one account is walked through two standalone pages before the app
+// proper. Neither fetches anything, so signing in as it issues no data call at
+// all until the last button is pressed. Every other account is unaffected.
 const WELCOME_USERNAME='apollo.admin';
-const landingFor=user=>user.username===WELCOME_USERNAME?'/welcome':'/dashboard';
+const WELCOME_STEPS=[
+ {path:'/welcome', eyebrow:'Administrator', title:'Welcome, Admin',
+  body:'No records have been loaded yet.', cta:'Enter Admin', next:'/welcome/admin'},
+ {path:'/welcome/admin', eyebrow:'Admin console', title:'Admin console',
+  body:'Still nothing loaded. Continue to open the dashboard.', cta:'Open Dashboard', next:'/dashboard'},
+];
+const welcomeStep=p=>WELCOME_STEPS.find(x=>x.path===p);
+const landingFor=user=>user.username===WELCOME_USERNAME?WELCOME_STEPS[0].path:'/dashboard';
 
 const routeFor=p=>routes.find(r=>r.path===p)||routes[0];
 const detailMatch=p=>{
@@ -152,7 +159,7 @@ const Icon={
 
 function Login({onLogin}){
  const [u,setU]=useState(''),[p,setP]=useState(''),[e,setE]=useState(''),[show,setShow]=useState(false),[busy,setBusy]=useState(false);
- const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const {data:x,headers}=await api('/auth/login',{method:'POST',apiKey:'',withHeaders:true,body:JSON.stringify({username:u,password:p})});localStorage.setItem('apiKey',headers.get('X-API-Key')||apiKeyFor(u));localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl(landingFor(x.user)));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
+ const go=async ev=>{ev.preventDefault();setBusy(true);setE('');try{const {data:x,headers}=await api('/signin',{method:'POST',apiKey:'',withHeaders:true,body:JSON.stringify({username:u,password:p})});localStorage.setItem('apiKey',headers.get('X-API-Key')||apiKeyFor(u));localStorage.setItem('token',x.token);localStorage.setItem('user',JSON.stringify(x.user));history.replaceState({},'', appUrl(landingFor(x.user)));onLogin(x.user)}catch(x){setE(x.message);setBusy(false)}};
  return <div className="login">
    <div className="login-card">
      <div className="brand"><span>✚</span> Medical Logictics App</div>
@@ -172,14 +179,14 @@ function Login({onLogin}){
  </div>;
 }
 
-function WelcomeAdmin({user,onEnter,onSignOut}){
+function WelcomeAdmin({step,user,onNext,onSignOut}){
  return <div className="login">
    <div className="login-card">
      <div className="brand"><span>✚</span> Medical Logictics App</div>
-     <p className="eyebrow">Administrator</p>
-     <h1>Welcome, Admin</h1>
-     <p className="muted">Signed in as {user.name} · {user.tenantId}. No records have been loaded yet.</p>
-     <button className="login-btn" onClick={onEnter}>Enter Admin</button>
+     <p className="eyebrow">{step.eyebrow}</p>
+     <h1>{step.title}</h1>
+     <p className="muted">Signed in as {user.name} · {user.tenantId}. {step.body}</p>
+     <button className="login-btn" onClick={()=>onNext(step.next)}>{step.cta}</button>
      <p className="login-foot"><button type="button" className="linklike" onClick={onSignOut}>Sign out</button></p>
    </div>
  </div>;
@@ -212,12 +219,12 @@ function App(){
    history.pushState({},'', appUrl(p)); setPath(p);
  };
 
- useEffect(()=>{if(user && path!=='/unauthorized' && path!=='/' && path!=='/welcome') load(path)},[path,user]);
+ useEffect(()=>{if(user && path!=='/unauthorized' && path!=='/' && !welcomeStep(path)) load(path)},[path,user]);
 
- // The welcome page belongs to one account; anyone else who reaches that URL
- // goes straight into the app.
+ // The welcome pages belong to one account; anyone else who reaches one of
+ // those URLs goes straight into the app.
  useEffect(()=>{
-   if(user && path==='/welcome' && user.username!==WELCOME_USERNAME){
+   if(user && welcomeStep(path) && user.username!==WELCOME_USERNAME){
      history.replaceState({},'',appUrl('/dashboard')); setPath('/dashboard');
    }
  },[path,user]);
@@ -248,10 +255,11 @@ function App(){
  // effect skips '/', which would leave the shell rendered with no content.
  if(!user)return <Login onLogin={u=>{setUser(u);setPath(landingFor(u))}}/>;
  const logout=()=>{localStorage.clear();setUser(null);history.replaceState({},'',appUrl('/'));setPath('/')};
- if(path==='/welcome'){
+ const step=welcomeStep(path);
+ if(step){
    if(user.username!==WELCOME_USERNAME) return null; // the effect above is redirecting
-   return <WelcomeAdmin user={user} onSignOut={logout}
-     onEnter={()=>{history.pushState({},'',appUrl('/dashboard'));setPath('/dashboard')}}/>;
+   return <WelcomeAdmin step={step} user={user} onSignOut={logout}
+     onNext={p=>{history.pushState({},'',appUrl(p));setPath(p)}}/>;
  }
  if(path==='/unauthorized')return <Unauthorized goDashboard={()=>navigate('/dashboard')}/>;
 

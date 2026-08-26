@@ -22,7 +22,7 @@ info:
     authentication, so it applies to `/api/health` too.
 
 
-    `/api/auth/login` is the one exception: it takes only a username and
+    `/api/signin` is the one exception: it takes only a username and
     password, and returns the caller's key in the `X-API-Key` response header.
     Read it there, then send it on every other request.
 
@@ -66,7 +66,7 @@ paths:
         '401': { $ref: '#/components/responses/MissingApiKey' }
         '403': { $ref: '#/components/responses/ApiKeyError' }
 
-  /api/auth/login:
+  /api/signin:
     post:
       tags: [Auth]
       summary: Log in and receive a JWT
@@ -524,7 +524,7 @@ components:
         apollo.patient -> YXBvbGxvLnBhdGllbnQ=. The server decodes it and
         accepts the request only if the decoded value is a known username.
         Missing header -> 401; unreadable or unknown username -> 403.
-        /api/auth/login is exempt and issues the key in its X-API-Key
+        /api/signin is exempt and issues the key in its X-API-Key
         response header.
     bearerAuth:
       type: http

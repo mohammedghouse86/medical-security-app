@@ -1,0 +1,13 @@
+{
+  "name": "egress-probe",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Standalone endpoint that records the source IP of callers, to determine a system's outbound egress addresses.",
+  "scripts": {
+    "start": "node server.js",
+    "report": "node report.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

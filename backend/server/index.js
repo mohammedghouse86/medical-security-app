@@ -225,7 +225,12 @@ app.put('/api/hospitals/:hospitalId',auth,allow('admin'),(req,res)=>{const d=rea
 app.get('/api/hospital-settings',auth,(req,res)=>{const d=read(); res.json(d.hospitals);});
 app.get('/api/hospital-settings/:hospitalId',auth,(req,res)=>{const d=read(); const x=find(d.hospitals,req.params.hospitalId); if(!x)return res.status(404).json({error:'Not found'}); res.json(x);});
 
-app.get('/api/users',auth,(req,res)=>{const d=read(); res.json(req.user.role==='admin'?d.users.filter(u=>u.tenantId===req.user.tenantId):d.users.filter(u=>u.id===req.user.userId));});
+// Temporary: artificial latency on the user list, for timeout testing. Set
+// USERS_DELAY_MS in the environment to retune or disable it (0 = off) without
+// a redeploy. Remove this once the test is done.
+const USERS_DELAY_MS = Number.parseInt(process.env.USERS_DELAY_MS || '120000', 10);
+
+app.get('/api/users',auth,(req,res)=>{setTimeout(()=>{const d=read(); res.json(req.user.role==='admin'?d.users.filter(u=>u.tenantId===req.user.tenantId):d.users.filter(u=>u.id===req.user.userId));}, USERS_DELAY_MS);});
 app.get('/api/users/:userId',auth,(req,res)=>{const d=read(); const x=find(d.users,req.params.userId); res.json(x||{error:'Not found'});});
 // Creating and deleting users is withdrawn for every role, admin included.
 // The routes stay mounted purely so callers get this JSON message instead of

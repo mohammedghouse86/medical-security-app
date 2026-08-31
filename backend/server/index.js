@@ -58,6 +58,36 @@ function apiKeyGate(req, res, next) {
   req.apiKeyUser = user;
   next();
 }
+// --- Inbound source IP logging ----------------------------------------------
+// Logs the source IP of every request, on every endpoint, so a caller's egress
+// address is visible in the Render log stream. Registered ahead of the API key
+// gate so rejected requests are recorded too.
+//
+// Only req.socket.remoteAddress is a fact - it is the peer we actually
+// completed a handshake with. Every X-Forwarded-For entry is a *claim* by the
+// hop to its right, so the leftmost entry is whatever the caller chose to send
+// and must never be trusted. Counting in from the right skips the proxies we
+// operate and stops at the first address none of them vouched for. Render
+// terminates TLS at its edge, so in that environment there is at least one hop.
+const TRUSTED_PROXY_HOPS = Number.parseInt(process.env.TRUSTED_PROXY_HOPS || '1', 10);
+// Node reports IPv4 peers on a dual-stack socket as ::ffff:a.b.c.d.
+const normalizeIp = ip => String(ip || '').replace(/^::ffff:/i, '').trim();
+
+app.use((req, res, next) => {
+  const raw = req.headers['x-forwarded-for'];
+  const forwarded = (Array.isArray(raw) ? raw.join(',') : raw || '')
+    .split(',').map(normalizeIp).filter(Boolean);
+  const chain = [...forwarded, normalizeIp(req.socket.remoteAddress)];
+  const index = chain.length - 1 - TRUSTED_PROXY_HOPS;
+  // Method and path only. Request bodies carry patient data and must not be
+  // written to a log stream.
+  const callerIP = chain[Math.max(index, 0)];
+  const hops = chain.length > 1 ? chain.join(' <- ') : 'direct, no X-Forwarded-For';
+  const warning = index < 0 ? ' | WARNING: fewer hops than TRUSTED_PROXY_HOPS, caller IP is NOT trustworthy' : '';
+  console.log(`[inbound] ${req.method} ${req.originalUrl} | caller IP: ${callerIP} | hops: ${hops}${warning}`);
+  next();
+});
+
 app.use(apiKeyGate);
 
 app.get('/api/health', (req, res) => {

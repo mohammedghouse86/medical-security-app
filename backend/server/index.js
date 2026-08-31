@@ -73,18 +73,49 @@ const TRUSTED_PROXY_HOPS = Number.parseInt(process.env.TRUSTED_PROXY_HOPS || '1'
 // Node reports IPv4 peers on a dual-stack socket as ::ffff:a.b.c.d.
 const normalizeIp = ip => String(ip || '').replace(/^::ffff:/i, '').trim();
 
-app.use((req, res, next) => {
+// Headers a fronting CDN sets to name the original caller outright. Cloudflare
+// runs in front of this service on Render, so cf-connecting-ip is usually the
+// straight answer and needs no hop arithmetic. It is only worth trusting
+// because nothing reaches this app without crossing that edge first - a caller
+// speaking to the origin directly could invent any of these headers.
+const CDN_CALLER_HEADERS = ['cf-connecting-ip', 'true-client-ip', 'x-real-ip'];
+
+function describeCaller(req) {
   const raw = req.headers['x-forwarded-for'];
   const forwarded = (Array.isArray(raw) ? raw.join(',') : raw || '')
     .split(',').map(normalizeIp).filter(Boolean);
   const chain = [...forwarded, normalizeIp(req.socket.remoteAddress)];
   const index = chain.length - 1 - TRUSTED_PROXY_HOPS;
-  // Method and path only. Request bodies carry patient data and must not be
+  const cdnHeaders = {};
+  for (const h of CDN_CALLER_HEADERS) if (req.headers[h]) cdnHeaders[h] = normalizeIp(req.headers[h]);
+  const cdnKey = CDN_CALLER_HEADERS.find(h => cdnHeaders[h]);
+  return {
+    callerIP: chain[Math.max(index, 0)],
+    trustworthy: index >= 0,
+    cdnReportedIP: cdnKey ? cdnHeaders[cdnKey] : null,
+    cdnHeaders,
+    hopChain: chain,
+    xForwardedFor: forwarded.length ? forwarded.join(', ') : null,
+    trustedProxyHops: TRUSTED_PROXY_HOPS,
+    // What each possible hop count would have yielded. This removes the
+    // guesswork from tuning TRUSTED_PROXY_HOPS: find your own public address in
+    // this table and the number beside it is the value to set.
+    ifTrustedProxyHopsWere: Object.fromEntries(chain.map((_, n) => [n, chain[chain.length - 1 - n]]))
+  };
+}
+
+app.use((req, res, next) => {
+  const c = describeCaller(req);
+  // Method and path only. Request bodies carry patient data and must never be
   // written to a log stream.
-  const callerIP = chain[Math.max(index, 0)];
-  const hops = chain.length > 1 ? chain.join(' <- ') : 'direct, no X-Forwarded-For';
-  const warning = index < 0 ? ' | WARNING: fewer hops than TRUSTED_PROXY_HOPS, caller IP is NOT trustworthy' : '';
-  console.log(`[inbound] ${req.method} ${req.originalUrl} | caller IP: ${callerIP} | hops: ${hops}${warning}`);
+  const parts = [`[inbound] ${req.method} ${req.originalUrl}`, `caller IP: ${c.callerIP}`];
+  if (c.cdnReportedIP) {
+    parts.push(`Cloudflare says: ${c.cdnReportedIP}` +
+      (c.cdnReportedIP === c.callerIP ? ' (agrees)' : ' (DISAGREES - fix TRUSTED_PROXY_HOPS)'));
+  }
+  parts.push(`hops: ${c.hopChain.length > 1 ? c.hopChain.join(' <- ') : 'direct, no X-Forwarded-For'}`);
+  if (!c.trustworthy) parts.push('WARNING: fewer hops than TRUSTED_PROXY_HOPS, caller IP is NOT trustworthy');
+  console.log(parts.join(' | '));
   next();
 });
 
@@ -92,6 +123,14 @@ app.use(apiKeyGate);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'MedSecure API' });
+});
+
+// Diagnostic view of the request above, so a caller's address and the full hop
+// chain can be read in a browser instead of scraped out of a log stream. Sits
+// behind the API key gate. Remove it once the egress question is settled: it
+// reports internal network addresses.
+app.get('/api/whoami', (req, res) => {
+  res.json(describeCaller(req));
 });
 
 // --- API documentation (public) ---

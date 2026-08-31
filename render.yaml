@@ -8,3 +8,21 @@ services:
     envVars:
       - key: FRONTEND_ORIGIN
         sync: false
+
+  # Short-lived probe used to observe the source IP of callers. Deploy it only
+  # while a capture is running, then suspend it - see tools/egress-probe/NOTES.md.
+  - type: web
+    name: egress-probe
+    runtime: node
+    rootDir: tools/egress-probe
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      # Without this every request 404s, which is the intended default.
+      - key: PROBE_TOKEN
+        generateValue: true
+      # Render terminates TLS at its edge, so the socket peer is Render's proxy,
+      # never the caller. 1 is a starting guess - measure it (NOTES.md) and
+      # correct it before trusting any address this records.
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"

@@ -8,6 +8,12 @@ services:
     envVars:
       - key: FRONTEND_ORIGIN
         sync: false
+      # Three hops in front of this service are ours: Cloudflare, the Render
+      # proxy, and loopback. Measured from the inbound logs. The allow list in
+      # server/index.js refuses any request whose chain is shorter than this,
+      # so lowering it weakens the allow list rather than loosening logging.
+      - key: TRUSTED_PROXY_HOPS
+        value: "3"
 
   # Short-lived probe used to observe the source IP of callers. Deploy it only
   # while a capture is running, then suspend it - see tools/egress-probe/NOTES.md.

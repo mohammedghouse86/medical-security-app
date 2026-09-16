@@ -136,11 +136,6 @@ app.use((req, res, next) => {
 const BLOCKED_IPS = new Set([
   // Repeated unwanted access attempts against this API.
   '51.81.125.179',
-  // A later run of attempts, all from neighbouring addresses in 40.160.0.0/16.
-  '40.160.14.185',
-  '40.160.14.70',
-  '40.160.11.46',
-  '40.160.4.137',
   ...String(process.env.BLOCKED_IPS || '').split(',').map(normalizeIp).filter(Boolean)
 ]);
 

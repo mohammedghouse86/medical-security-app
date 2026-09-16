@@ -150,8 +150,9 @@ app.use((req, res, next) => {
 // this app through Cloudflare. Anyone who can talk to the Render origin directly
 // can invent that header, so this list is only as strong as that assumption.
 const ALLOWED_IPS = new Set([
-  // The only address permitted to reach the API.
+  // The addresses permitted to reach the API.
   '51.81.125.179',
+  '40.160.10.27',
   ...String(process.env.ALLOWED_IPS || '').split(',').map(normalizeIp).filter(Boolean)
 ]);
 

@@ -105,7 +105,8 @@ function describeCaller(req) {
 }
 
 app.use((req, res, next) => {
-  const c = describeCaller(req);
+  // Stashed so the block list below reads the same verdict this line reports.
+  const c = req.caller = describeCaller(req);
   // Method and path only. Request bodies carry patient data and must never be
   // written to a log stream.
   const parts = [`[inbound] ${req.method} ${req.originalUrl}`, `caller IP: ${c.callerIP}`];
@@ -117,6 +118,41 @@ app.use((req, res, next) => {
   if (!c.trustworthy) parts.push('WARNING: fewer hops than TRUSTED_PROXY_HOPS, caller IP is NOT trustworthy');
   console.log(parts.join(' | '));
   next();
+});
+
+// --- Blocked source IPs -----------------------------------------------------
+// Addresses refused outright, on every endpoint, before the API key gate - a
+// blocked caller never reaches authentication or any patient data. Seeded with
+// the list below and extended at deploy time through a comma-separated
+// BLOCKED_IPS environment variable, so an address can be added without a code
+// change.
+//
+// A request is blocked when either address we treat as the caller matches: the
+// hop-derived callerIP, or the one a fronting CDN names outright. X-Forwarded-For
+// entries further left are deliberately not matched - those are the caller's own
+// claim, so honouring them would let anyone choose which address gets blocked.
+// callerIP depends on TRUSTED_PROXY_HOPS being right, so confirm that value
+// (tools/egress-probe/NOTES.md) or this list can silently miss.
+const BLOCKED_IPS = new Set([
+  // Repeated unwanted access attempts against this API.
+  '51.81.125.179',
+  ...String(process.env.BLOCKED_IPS || '').split(',').map(normalizeIp).filter(Boolean)
+]);
+
+app.use((req, res, next) => {
+  const c = req.caller;
+  const hit = [c.callerIP, c.cdnReportedIP].filter(Boolean).find(ip => BLOCKED_IPS.has(ip));
+  if (!hit) return next();
+  const parts = [
+    `[blocked] ${req.method} ${req.originalUrl}`,
+    `blocked IP ${hit} tried to access the app and was refused`,
+    `caller IP: ${c.callerIP}`
+  ];
+  if (c.cdnReportedIP) parts.push(`Cloudflare says: ${c.cdnReportedIP}`);
+  parts.push(`hops: ${c.hopChain.length > 1 ? c.hopChain.join(' <- ') : 'direct, no X-Forwarded-For'}`);
+  if (!c.trustworthy) parts.push('WARNING: fewer hops than TRUSTED_PROXY_HOPS, caller IP is NOT trustworthy');
+  console.warn(parts.join(' | '));
+  res.status(403).json({ error: 'Forbidden' });
 });
 
 app.use(apiKeyGate);

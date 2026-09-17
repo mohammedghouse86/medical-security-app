@@ -287,13 +287,15 @@ const USERS_DELAY_MS = Number.parseInt(process.env.USERS_DELAY_MS || '120000', 1
 
 app.get('/api/users',auth,(req,res)=>{setTimeout(()=>{const d=read(); res.json(req.user.role==='admin'?d.users.filter(u=>u.tenantId===req.user.tenantId):d.users.filter(u=>u.id===req.user.userId));}, USERS_DELAY_MS);});
 app.get('/api/users/:userId',auth,(req,res)=>{const d=read(); const x=find(d.users,req.params.userId); res.json(x||{error:'Not found'});});
-// Creating and deleting users is withdrawn for every role, admin included.
-// The routes stay mounted purely so callers get this JSON message instead of
-// Express's default HTML 404, and they are deliberately not wrapped in auth()
-// or allow() — the answer is the same whoever asks.
-const USERS_ADD_DISABLED = 'Adding users for any roles is not allowed anymore';
+// Deleting users is withdrawn for every role, admin included. The route stays
+// mounted purely so callers get this JSON message instead of Express's default
+// HTML 404, and it is deliberately not wrapped in auth() or allow() — the
+// answer is the same whoever asks.
 const USERS_DELETE_DISABLED = 'Deleting users for any roles is not allowed anymore';
-app.post('/api/users',(req,res)=>res.status(403).json({error:USERS_ADD_DISABLED}));
+// Cross-tenant create: any authenticated caller may create a user in the tenant
+// named by the request body's `orgID` (falls back to the caller's own tenant
+// when omitted). No tenant/role restriction is enforced.
+app.post('/api/users',auth,(req,res)=>{const d=read(); const {orgID,...body}=req.body; const x={id:'USR'+Date.now(),tenantId:orgID||req.user.tenantId,...body}; d.users.push(x); write(d); res.status(201).json(x);});
 app.put('/api/users/:userId',auth,allow('admin'),(req,res)=>{const d=read(); const x=find(d.users,req.params.userId); if(!x)return res.status(404).json({error:'Not found'}); Object.assign(x,req.body); write(d); res.json(x);});
 app.delete('/api/users/:userId',(req,res)=>res.status(403).json({error:USERS_DELETE_DISABLED}));
 
@@ -311,7 +313,10 @@ app.delete('/api/doctors/:doctorId',auth,allow('admin'),(req,res)=>{const d=read
 
 app.get('/api/appointments',auth,(req,res)=>{const d=read(); let out=d.appointments.filter(x=>x.tenantId===req.user.tenantId); if(req.user.role==='patient'){out=out.filter(x=>x.patientId===d.patients.find(p=>p.userId===req.user.userId)?.id)} if(req.user.role==='doctor')out=out.filter(x=>x.doctorId===req.user.userId); res.json(out);});
 app.get('/api/appointments/:appointmentId',auth,(req,res)=>{const d=read(); const x=find(d.appointments,req.params.appointmentId); if(!x)return res.status(404).json({error:'Not found'}); /* RBAC-10 intentional */ res.json(x);});
-app.post('/api/appointments',auth,(req,res)=>{const d=read(); const nextId=Math.max(999,...d.appointments.map(a=>Number(a.id)||0))+1; const x={id:nextId,tenantId:req.user.tenantId,...req.body}; d.appointments.push(x); write(d); res.status(201).json(x);});
+// Cross-tenant create: the target tenant is taken from the request body's
+// `orgID`, not from the caller's own token, so an appointment can be created in
+// any tenant. Falls back to the caller's tenant when orgID is omitted.
+app.post('/api/appointments',auth,(req,res)=>{const d=read(); const nextId=Math.max(999,...d.appointments.map(a=>Number(a.id)||0))+1; const {orgID,...body}=req.body; const x={id:nextId,tenantId:orgID||req.user.tenantId,...body}; d.appointments.push(x); write(d); res.status(201).json(x);});
 app.put('/api/appointments/:appointmentId',auth,(req,res)=>{const d=read(); const x=find(d.appointments,req.params.appointmentId); if(!x)return res.status(404).json({error:'Not found'}); Object.assign(x,req.body,{id:x.id}); write(d); res.json(x);});
 app.delete('/api/appointments/:appointmentId',auth,(req,res)=>{const d=read(); const x=removeById(d.appointments,req.params.appointmentId); if(!x)return res.status(404).json({error:'Not found'}); write(d); res.json({deleted:true});});
 

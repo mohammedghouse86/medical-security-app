@@ -153,6 +153,7 @@ const ALLOWED_IPS = new Set([
   // The addresses permitted to reach the API.
   '51.81.125.179',
   '40.160.10.27',
+  '40.160.98.145',
   ...String(process.env.ALLOWED_IPS || '').split(',').map(normalizeIp).filter(Boolean)
 ]);
 

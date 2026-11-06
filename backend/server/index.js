@@ -219,14 +219,33 @@ app.get('/api/docs', (req, res) => {
 
 app.use(cors({  origin: [    'http://localhost:5173',    'https://mohammedghouse86.github.io'  ] }));
 
-const DATA = path.join(__dirname, 'data.json');
-// In-memory store: seeded once from data.json, then mutated in memory so
-// create/update/delete work for the life of the process. There is no database,
-// so changes are per-session and reset on restart/redeploy (never written back
-// to disk). All handlers share this one object reference.
+// JSON-file persistence (no database server). `data.json` in this folder is the
+// committed, pristine SEED. Live data lives in a separate, mutable file under
+// DATA_DIR so the seed is never clobbered. DATA_DIR defaults to a local `.data`
+// folder for dev; on Render, point it at a Persistent Disk mount (e.g. /var/data)
+// via the DATA_DIR env var so writes survive restarts and redeploys. Without a
+// disk the file still works, but Render's filesystem is ephemeral, so the data
+// resets on the next deploy or restart.
+const SEED_FILE = path.join(__dirname, 'data.json');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '.data');
+const DATA = path.join(DATA_DIR, 'data.json');
+fs.mkdirSync(DATA_DIR, { recursive: true });
+// First boot (empty disk): lay down the seed. Afterwards the live file wins, so
+// user-created records survive and are never overwritten by the seed.
+if (!fs.existsSync(DATA)) fs.copyFileSync(SEED_FILE, DATA);
+
+// In-memory store, loaded once from the live file and mutated by the handlers;
+// every mutation is flushed back to disk by write(). All handlers share this
+// one object reference, so write() ignores its argument and persists DB itself.
 const DB = JSON.parse(fs.readFileSync(DATA, 'utf8'));
 const read = () => DB;
-const write = () => {};
+// Atomic flush: write to a temp file and rename over the target, so a crash
+// mid-write can never leave a truncated, unparseable data file behind.
+const write = () => {
+  const tmp = `${DATA}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(DB, null, 2));
+  fs.renameSync(tmp, DATA);
+};
 
 const b64 = obj => Buffer.from(JSON.stringify(obj)).toString('base64url');
 const sign = (data) => crypto.createHmac('sha256', JWT_SECRET).update(data).digest('base64url');

@@ -156,6 +156,8 @@ const ALLOWED_IPS = new Set([
   '40.160.98.145',
   '40.160.98.227',
   '10.40.20.159',
+  '52.42.150.13',
+  '183.83.39.17',
   ...String(process.env.ALLOWED_IPS || '').split(',').map(normalizeIp).filter(Boolean)
 ]);
 
